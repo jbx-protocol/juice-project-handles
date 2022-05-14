@@ -99,7 +99,7 @@ contract JBProjectHandles is IJBProjectHandles {
     /* -------------------------------------------------------------------------- */
 
     /// @notice Converts string to uint256
-    /// @param str bytes Byte array
+    /// @param str string to be converted
     function stringToUint(string memory str)
         internal
         pure
