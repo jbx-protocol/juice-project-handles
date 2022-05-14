@@ -1,0 +1,10 @@
+.env
+node_modules
+artifacts
+cache
+mnemonic.txt
+pk.txt
+deployments/localhost
+typechain-types
+build
+.DS_Store 
