@@ -1,18 +1,29 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 
 /// @title Interface for JBProjectHandles
 
-pragma solidity ^0.8.13;
+pragma solidity 0.8.14;
+
+struct ENSName {
+    string name;
+    string subdomain;
+}
 
 interface IJBProjectHandles {
-    event SetReverseRecord(uint256 indexed projectId, bytes32 indexed record);
+    event SetEnsName(uint256 indexed projectId, string indexed ensName);
 
-    function setReverseRecord(uint256 projectId, bytes32 record) external;
+    function setEnsNameFor(uint256 projectId, string calldata name) external;
 
-    function reverseRecordOf(uint256 projectId)
+    function setEnsNameWithSubdomainFor(
+        uint256 projectId,
+        string calldata name,
+        string calldata subdomain
+    ) external;
+
+    function ensNameOf(uint256 projectId)
         external
         view
-        returns (bytes32 reverseRecord);
+        returns (ENSName memory ensName);
 
-    function handleOf(uint256 projectId) external view returns (bytes32);
+    function handleOf(uint256 projectId) external view returns (string memory);
 }

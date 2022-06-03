@@ -1,9 +1,11 @@
+import "hardhat-contract-sizer";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
-import "hardhat-contract-sizer";
-import "@typechain/hardhat";
+import "hardhat-gas-reporter";
 import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
 import * as fs from "fs";
 
 function mnemonic() {
@@ -41,28 +43,22 @@ module.exports = {
     mainnet: {
       url: "https://mainnet.infura.io/v3/" + infuraId,
       accounts: [deployerPk()],
-      gasPrice: 110000000000,
+      gasPrice: 60e9,
     },
   },
   etherscan: {
     apiKey: {
-      // rinkeby: `${process.env.ETHERSCAN_API_KEY}`,
-      // mainnet: `${process.env.ETHERSCAN_API_KEY}`,
+      mainnet: `${process.env.ETHERSCAN_API_KEY}`,
     },
   },
   solidity: {
-    version: "0.8.13",
+    version: "0.8.14",
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
       },
     },
-  },
-  namedAccounts: {
-    deployer: 0,
-    dev: 1,
-    fee: 2,
   },
   paths: {
     sources: "./contracts",
