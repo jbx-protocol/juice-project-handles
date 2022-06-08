@@ -2,7 +2,7 @@
 
 /// @notice Test ERC721 contract. Includes a single function `mint` allowing a token to be minted to any wallet for free.
 
-pragma solidity 0.8.14;
+pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 

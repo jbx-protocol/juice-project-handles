@@ -4,33 +4,28 @@
 /// @author peri
 /// @notice Manages reverse records that point from JB project IDs to ENS nodes. If the reverse record of a project ID is pointed to an ENS node with a TXT record matching the ID of that project, then the ENS node will be considered the "handle" for that project.
 
-pragma solidity 0.8.14;
+pragma solidity 0.8.6;
 
 import "@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol";
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
+import "@jbx-protocol/contracts-v2/contracts/abstract/JBOperatable.sol";
+import "@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjects.sol";
+import "@jbx-protocol/contracts-v2/contracts/interfaces/IJBOperatorStore.sol";
 import "./interfaces/IJBProjectHandles.sol";
+import "./libraries/JBOperations.sol";
 
 error NotJuiceboxProjectOwner(uint256 projectId, address owner);
 
-contract JBProjectHandles is IJBProjectHandles {
-    /* -------------------------------------------------------------------------- */
-    /* ------------------------------- MODIFIERS -------------------------------- */
-    /* -------------------------------------------------------------------------- */
-
-    /// @notice Require that caller owns this Juicebox project
-    /// @param projectId id of Juicebox project
-    modifier onlyProjectOwner(uint256 projectId) {
-        if (msg.sender != IERC721(jbProjects).ownerOf(projectId)) {
-            revert NotJuiceboxProjectOwner(projectId, msg.sender);
-        }
-        _;
-    }
-
+contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     /* -------------------------------------------------------------------------- */
     /* ------------------------------ CONSTRUCTOR ------------------------------- */
     /* -------------------------------------------------------------------------- */
 
-    constructor(address _jbProjects, address _ensTextResolver) {
+    constructor(
+        IJBProjects _jbProjects,
+        address _ensTextResolver,
+        IJBOperatorStore _jbOperatorStore
+    ) JBOperatable(_jbOperatorStore) {
         jbProjects = _jbProjects;
         ensTextResolver = _ensTextResolver;
     }
@@ -43,7 +38,7 @@ contract JBProjectHandles is IJBProjectHandles {
     string public constant TEXT_KEY = "juicebox";
 
     /// JB Projects contract address
-    address public immutable jbProjects;
+    IJBProjects public immutable jbProjects;
 
     /// ENS text resolver contract address
     address public immutable ensTextResolver;
@@ -59,7 +54,10 @@ contract JBProjectHandles is IJBProjectHandles {
     /// @dev Requires sender to own Juicebox project
     /// @param projectId ID of Juicebox project
     /// @param name ENS domain to use as project handle, excluding .eth.
-    function setEnsNameFor(uint256 projectId, string calldata name) external {
+    function setEnsNameFor(uint256 projectId, string calldata name)
+        external
+        override
+    {
         _setEnsNameFor(projectId, ENSName({name: name, subdomain: ""}));
     }
 
@@ -72,7 +70,7 @@ contract JBProjectHandles is IJBProjectHandles {
         uint256 projectId,
         string calldata name,
         string calldata subdomain
-    ) external {
+    ) external override {
         _setEnsNameFor(projectId, ENSName({name: name, subdomain: subdomain}));
     }
 
@@ -82,6 +80,7 @@ contract JBProjectHandles is IJBProjectHandles {
     function ensNameOf(uint256 projectId)
         public
         view
+        override
         returns (ENSName memory ensName)
     {
         ensName = ensNames[projectId];
@@ -91,7 +90,12 @@ contract JBProjectHandles is IJBProjectHandles {
     /// @dev Requires ensName to have TXT record matching projectId
     /// @param projectId id of Juicebox project
     /// @return ensName for project
-    function handleOf(uint256 projectId) public view returns (string memory) {
+    function handleOf(uint256 projectId)
+        public
+        view
+        override
+        returns (string memory)
+    {
         ENSName memory ensName = ensNameOf(projectId);
 
         // Return empty string if no ENS name set
@@ -117,12 +121,16 @@ contract JBProjectHandles is IJBProjectHandles {
     /* -------------------------------------------------------------------------- */
 
     /// @notice Set reverse record for Juicebox project
-    /// @dev Requires sender to own Juicebox project
+    /// @dev Requires sender to own or operate the Juicebox project
     /// @param projectId ID of Juicebox project
     /// @param ensName ENS name to use as project handle, excluding .eth.
     function _setEnsNameFor(uint256 projectId, ENSName memory ensName)
         internal
-        onlyProjectOwner(projectId)
+        requirePermission(
+            jbProjects.ownerOf(projectId),
+            projectId,
+            JBOperations.SET_ENS_NAME_FOR
+        )
     {
         ensNames[projectId] = ensName;
 

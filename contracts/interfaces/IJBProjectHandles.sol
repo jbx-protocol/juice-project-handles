@@ -2,7 +2,7 @@
 
 /// @title Interface for JBProjectHandles
 
-pragma solidity 0.8.14;
+pragma solidity 0.8.6;
 
 struct ENSName {
     string name;
