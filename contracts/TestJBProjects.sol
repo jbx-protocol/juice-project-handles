@@ -4,17 +4,15 @@
 
 pragma solidity 0.8.6;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 
 contract TestJBProjects is ERC721 {
-    uint256 public supply;
+  uint256 public supply;
 
-    constructor(string memory name, string memory symbol)
-        ERC721(name, symbol)
-    {}
+  constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
-    function mint(address to) external {
-        _mint(to, supply + 1);
-        supply++;
-    }
+  function mint(address to) external {
+    _mint(to, supply + 1);
+    supply++;
+  }
 }
