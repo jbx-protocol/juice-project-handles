@@ -1,29 +1,28 @@
 // SPDX-License-Identifier: MIT
-
-/// @title Interface for JBProjectHandles
-
 pragma solidity 0.8.6;
 
-struct ENSName {
-    string name;
-    string subdomain;
-}
+import "@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjects.sol";
+import "../structs/ENSName.sol";
 
 interface IJBProjectHandles {
     event SetEnsName(uint256 indexed projectId, string indexed ensName);
 
-    function setEnsNameFor(uint256 projectId, string calldata name) external;
+    function setEnsNameFor(uint256 _projectId, string calldata _name) external;
 
     function setEnsNameWithSubdomainFor(
-        uint256 projectId,
-        string calldata name,
-        string calldata subdomain
+        uint256 _projectId,
+        string calldata _name,
+        string calldata _subdomain
     ) external;
 
-    function ensNameOf(uint256 projectId)
+    function ensNameOf(uint256 _projectId)
         external
         view
-        returns (ENSName memory ensName);
+        returns (ENSName memory);
 
-    function handleOf(uint256 projectId) external view returns (string memory);
+    function jbProjects() external view returns (IJBProjects);
+
+    function ensTextResolver() external view returns (address);
+
+    function handleOf(uint256 _projectId) external view returns (string memory);
 }
