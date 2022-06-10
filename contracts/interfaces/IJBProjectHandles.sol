@@ -2,6 +2,7 @@
 pragma solidity 0.8.6;
 
 import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjects.sol';
+import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
 import '../structs/ENSName.sol';
 
 interface IJBProjectHandles {
@@ -19,7 +20,7 @@ interface IJBProjectHandles {
 
   function jbProjects() external view returns (IJBProjects);
 
-  function ensTextResolver() external view returns (address);
+  function ensTextResolver() external view returns (ITextResolver);
 
   function handleOf(uint256 _projectId) external view returns (string memory);
 }

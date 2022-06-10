@@ -5,7 +5,7 @@ import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol
 import '@openzeppelin/contracts/interfaces/IERC721.sol';
 import '@jbx-protocol/contracts-v2/contracts/abstract/JBOperatable.sol';
 import './interfaces/IJBProjectHandles.sol';
-import './libraries/JBOperations.sol';
+import './libraries/JBHandlesOperations.sol';
 
 /** 
   @title 
@@ -67,7 +67,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
       @notice
       The ENS text resolver contract address.
     */
-  address public immutable override ensTextResolver;
+  ITextResolver public immutable override ensTextResolver;
 
   //*********************************************************************//
   // ------------------------- external views -------------------------- //
@@ -92,7 +92,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
       return '';
     }
 
-    string memory reverseId = ITextResolver(ensTextResolver).text(_namehash(ensName), TEXT_KEY);
+    string memory reverseId = ensTextResolver.text(_namehash(ensName), TEXT_KEY);
 
     // Return empty string if reverseId from ENS name doesn't match projectId
     if (_stringToUint(reverseId) != _projectId) {
@@ -126,7 +126,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   constructor(
     IJBProjects _jbProjects,
     IJBOperatorStore _jbOperatorStore,
-    address _ensTextResolver
+    ITextResolver _ensTextResolver
   ) JBOperatable(_jbOperatorStore) {
     jbProjects = _jbProjects;
     ensTextResolver = _ensTextResolver;
@@ -185,7 +185,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     */
   function _setEnsNameFor(uint256 _projectId, ENSName memory _name)
     internal
-    requirePermission(jbProjects.ownerOf(_projectId), _projectId, JBOperations.SET_ENS_NAME_FOR)
+    requirePermission(jbProjects.ownerOf(_projectId), _projectId, JBHandlesOperations.SET_ENS_NAME_FOR)
   {
     _ensNameOf[_projectId] = _name;
 
