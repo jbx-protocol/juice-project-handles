@@ -99,7 +99,11 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Return empty string if text record from ENS name doesn't match projectId
     if (_stringToUint(reverseId) != _projectId) return '';
 
+<<<<<<< HEAD
     // Format the name.
+=======
+    // Format the handle from the name parts.
+>>>>>>> 313259c (_formatENSName => _formatHandle)
     return _formatHandle(_ensNameParts);
   }
 
@@ -235,23 +239,23 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Formats an ENS struct into string.
+    Formats ENS name parts into a handle.
 
-    @param _ensNameParts The ENS name to format.
+    @param _ensNameParts The ENS name to format into a handle.
 
-    @return _ensName The formatted ENS handle.
+    @return _handle The formatted ENS handle.
   */
-  function _formatHandle(string[] memory _ensNameParts) internal pure returns (string memory _ensName) {
+  function _formatHandle(string[] memory _ensNameParts) internal pure returns (string memory _handle) {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _ensNameParts.length;
 
     // Concatenate each name part.
     for (uint256 _i = 1; _i <= _partsLength; ) {
 
-      _ensName = string(abi.encodePacked(_ensName, _ensNameParts[_partsLength - _i]));
+      _handle = string(abi.encodePacked(_handle, _ensNameParts[_partsLength - _i]));
 
       // Add a dot if this is part isn't the last.
-      if (_i < _partsLength) _ensName = string(abi.encodePacked(_ensName, '.'));
+      if (_i < _partsLength) _handle = string(abi.encodePacked(_handle, '.'));
 
       unchecked {
         ++_i;

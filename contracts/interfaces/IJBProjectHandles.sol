@@ -7,7 +7,7 @@ import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol
 interface IJBProjectHandles {
   event SetEnsNameParts(
     uint256 indexed projectId,
-    string indexed ensName,
+    string indexed handle,
     string[] parts,
     address caller
   );
