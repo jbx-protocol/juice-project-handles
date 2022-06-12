@@ -211,20 +211,22 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @dev 
     See https://eips.ethereum.org/EIPS/eip-137.
 
-    @param _ensName The ENS name to hash.
+    @param _ensNameParts The parts of an ENS name to hash.
 
     @return namehash The namehash for an ensName.
   */
-  function _namehash(string[] memory _ensName) internal pure returns (bytes32 namehash) {
+  function _namehash(string[] memory _ensNameParts) internal pure returns (bytes32 namehash) {
     namehash = 0x0000000000000000000000000000000000000000000000000000000000000000;
     namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked('eth'))));
 
     // Get a reference to the number of parts are in the ENS name.
-    uint256 _nameLength = _ensName.length;
+    uint256 _nameLength = _ensNameParts.length;
 
     // Hash each part.
     for (uint256 _i = 0; _i < _nameLength; ) {
-      namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensName[_i]))));
+      namehash = keccak256(
+        abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensNameParts[_i])))
+      );
       unchecked {
         ++_i;
       }
