@@ -255,8 +255,6 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
         ++_i;
       }
     }
-
-    _ensName = string(abi.encodePacked(_ensName, '.eth'));
   }
 
   /** 

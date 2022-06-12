@@ -52,7 +52,7 @@ contract ContractTest is Test {
 
     // Test the event emitted
     vm.expectEmit(true, true, true, true);
-    emit SetEnsNameParts(_projectId, string(abi.encodePacked(_name, '.eth')), _nameParts, projectOwner);
+    emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
 
     vm.prank(projectOwner);
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
@@ -83,7 +83,7 @@ contract ContractTest is Test {
 
     // Test event
     vm.expectEmit(true, true, true, true);
-    emit SetEnsNameParts(_projectId, string(abi.encodePacked(_name, '.eth')), _nameParts, caller);
+    emit SetEnsNameParts(_projectId, _name, _nameParts, caller);
 
     vm.prank(caller);
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
@@ -110,7 +110,7 @@ contract ContractTest is Test {
     _nameParts[1] = _subdomain;
     _nameParts[2] = _name;
 
-    string memory _fullName = string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain, '.eth'));
+    string memory _fullName = string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain));
 
     // Test event
     vm.expectEmit(true, true, true, true);
