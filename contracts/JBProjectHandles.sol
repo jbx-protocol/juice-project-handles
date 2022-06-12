@@ -55,7 +55,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @notice
     The key of the ENS text record.
   */
-  string public constant TEXT_KEY = 'handles.projects.jb';
+  string public constant TEXT_KEY = 'juicebox_project_id';
 
   //*********************************************************************//
   // --------------------- public stored properties -------------------- //
