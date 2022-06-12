@@ -100,7 +100,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     if (_stringToUint(reverseId) != _projectId) return '';
 
     // Format the name.
-    return _formatEnsName(_ensNameParts);
+    return _formatHandle(_ensNameParts);
   }
 
   /** 
@@ -173,7 +173,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Store the parts.
     _ensNamePartsOf[_projectId] = _parts;
 
-    emit SetEnsNameParts(_projectId, _formatEnsName(_parts), _parts, msg.sender);
+    emit SetEnsNameParts(_projectId, _formatHandle(_parts), _parts, msg.sender);
   }
 
   //*********************************************************************//
@@ -237,9 +237,9 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     @param _ensNameParts The ENS name to format.
 
-    @return _ensName The formatted ENS name.
+    @return _ensName The formatted ENS handle.
   */
-  function _formatEnsName(string[] memory _ensNameParts) internal pure returns (string memory _ensName) {
+  function _formatHandle(string[] memory _ensNameParts) internal pure returns (string memory _ensName) {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _ensNameParts.length;
 
