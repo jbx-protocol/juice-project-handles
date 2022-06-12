@@ -30,6 +30,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   // --------------------------- custom errors ------------------------- //
   //*********************************************************************//
   error EMPTY_NAME_PART();
+  error NO_PARTS();
 
   //*********************************************************************//
   // --------------------- private stored properties ------------------- //
@@ -99,7 +100,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Return empty string if text record from ENS name doesn't match projectId
     if (_stringToUint(reverseId) != _projectId) return '';
 
-    // Format the name.
+    // Format the handle from the name parts.
     return _formatHandle(_ensNameParts);
   }
 
@@ -162,6 +163,9 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _parts.length;
 
+    // Make sure there are ens name parts.
+    if (_parts.length == 0) revert NO_PARTS();
+
     // Make sure no provided parts are empty.
     for (uint256 _i = 0; _i < _partsLength; ) {
       if (bytes(_parts[_i]).length == 0) revert EMPTY_NAME_PART();
@@ -211,20 +215,22 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @dev 
     See https://eips.ethereum.org/EIPS/eip-137.
 
-    @param _ensName The ENS name to hash.
+    @param _ensNameParts The parts of an ENS name to hash.
 
     @return namehash The namehash for an ensName.
   */
-  function _namehash(string[] memory _ensName) internal pure returns (bytes32 namehash) {
+  function _namehash(string[] memory _ensNameParts) internal pure returns (bytes32 namehash) {
     namehash = 0x0000000000000000000000000000000000000000000000000000000000000000;
     namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked('eth'))));
 
     // Get a reference to the number of parts are in the ENS name.
-    uint256 _nameLength = _ensName.length;
+    uint256 _nameLength = _ensNameParts.length;
 
     // Hash each part.
     for (uint256 _i = 0; _i < _nameLength; ) {
-      namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensName[_i]))));
+      namehash = keccak256(
+        abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensNameParts[_i])))
+      );
       unchecked {
         ++_i;
       }
@@ -233,23 +239,26 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Formats an ENS struct into string.
+    Formats ENS name parts into a handle.
 
-    @param _ensNameParts The ENS name to format.
+    @param _ensNameParts The ENS name to format into a handle.
 
-    @return _ensName The formatted ENS handle.
+    @return _handle The formatted ENS handle.
   */
-  function _formatHandle(string[] memory _ensNameParts) internal pure returns (string memory _ensName) {
+  function _formatHandle(string[] memory _ensNameParts)
+    internal
+    pure
+    returns (string memory _handle)
+  {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _ensNameParts.length;
 
     // Concatenate each name part.
     for (uint256 _i = 1; _i <= _partsLength; ) {
-
-      _ensName = string(abi.encodePacked(_ensName, _ensNameParts[_partsLength - _i]));
+      _handle = string(abi.encodePacked(_handle, _ensNameParts[_partsLength - _i]));
 
       // Add a dot if this is part isn't the last.
-      if (_i < _partsLength) _ensName = string(abi.encodePacked(_ensName, '.'));
+      if (_i < _partsLength) _handle = string(abi.encodePacked(_handle, '.'));
 
       unchecked {
         ++_i;
