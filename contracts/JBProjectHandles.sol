@@ -186,25 +186,30 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Converts a string to a uint256.
+    Formats ENS name parts into a handle.
 
-    @dev
-    Source: https://stackoverflow.com/questions/68976364/solidity-converting-number-strings-to-numbers
+    @param _ensNameParts The ENS name to format into a handle.
 
-    @param _numstring The number string to be converted.
-
-    @return result The uint converted from string.
+    @return _handle The formatted ENS handle.
   */
-  function _stringToUint(string memory _numstring) internal pure returns (uint256 result) {
-    result = 0;
-    bytes memory stringBytes = bytes(_numstring);
-    for (uint256 i = 0; i < stringBytes.length; i++) {
-      uint256 exp = stringBytes.length - i;
-      bytes1 ival = stringBytes[i];
-      uint8 uval = uint8(ival);
-      uint256 jval = uval - uint256(0x30);
+  function _formatHandle(string[] memory _ensNameParts)
+    internal
+    pure
+    returns (string memory _handle)
+  {
+    // Get a reference to the number of parts are in the ENS name.
+    uint256 _partsLength = _ensNameParts.length;
 
-      result += (uint256(jval) * (10**(exp - 1)));
+    // Concatenate each name part.
+    for (uint256 _i = 1; _i <= _partsLength; ) {
+      _handle = string(abi.encodePacked(_handle, _ensNameParts[_partsLength - _i]));
+
+      // Add a dot if this is part isn't the last.
+      if (_i < _partsLength) _handle = string(abi.encodePacked(_handle, '.'));
+
+      unchecked {
+        ++_i;
+      }
     }
   }
 
@@ -239,30 +244,25 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Formats ENS name parts into a handle.
+    Converts a string to a uint256.
 
-    @param _ensNameParts The ENS name to format into a handle.
+    @dev
+    Source: https://stackoverflow.com/questions/68976364/solidity-converting-number-strings-to-numbers
 
-    @return _handle The formatted ENS handle.
+    @param _numstring The number string to be converted.
+
+    @return result The uint converted from string.
   */
-  function _formatHandle(string[] memory _ensNameParts)
-    internal
-    pure
-    returns (string memory _handle)
-  {
-    // Get a reference to the number of parts are in the ENS name.
-    uint256 _partsLength = _ensNameParts.length;
+  function _stringToUint(string memory _numstring) internal pure returns (uint256 result) {
+    result = 0;
+    bytes memory stringBytes = bytes(_numstring);
+    for (uint256 i = 0; i < stringBytes.length; i++) {
+      uint256 exp = stringBytes.length - i;
+      bytes1 ival = stringBytes[i];
+      uint8 uval = uint8(ival);
+      uint256 jval = uval - uint256(0x30);
 
-    // Concatenate each name part.
-    for (uint256 _i = 1; _i <= _partsLength; ) {
-      _handle = string(abi.encodePacked(_handle, _ensNameParts[_partsLength - _i]));
-
-      // Add a dot if this is part isn't the last.
-      if (_i < _partsLength) _handle = string(abi.encodePacked(_handle, '.'));
-
-      unchecked {
-        ++_i;
-      }
+      result += (uint256(jval) * (10**(exp - 1)));
     }
   }
 
