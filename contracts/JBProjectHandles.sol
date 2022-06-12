@@ -248,10 +248,13 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     // Hash each part.
     for (uint256 _i = 1; _i <= _partsLength; ) {
+      // Format from the last part to the first part.
       _formattedBytes = bytes.concat(
         _formattedBytes,
         abi.encodePacked(_ensNameParts[_partsLength - _i])
       );
+
+      // Add a dot if this is part isn't the last.
       if (_i < _partsLength) bytes.concat(_formattedBytes, abi.encodePacked('.'));
 
       unchecked {
