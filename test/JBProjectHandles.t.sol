@@ -39,7 +39,7 @@ contract ContractTest is Test {
   // ------------------------ SetEnsNameFor(..) ------------------------ //
   //*********************************************************************//
 
-  function testSetEnsNamePartsFor_passIfProjectOwner(string memory _name) public {
+  function testSetEnsNamePartsFor_passIfProjectOwner(string calldata _name) public {
     vm.assume(bytes(_name).length != 0);
 
     uint256 _projectId = jbProjects.createFor(
@@ -58,34 +58,39 @@ contract ContractTest is Test {
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
     // Control: correct ENS name?
-    _assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
+    assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
   }
 
-  // function testSetEnsNameFor_passIfAuthorized(address caller, string calldata _name) public {
-  //   uint256 _projectId = jbProjects.createFor(
-  //     projectOwner,
-  //     JBProjectMetadata({content: 'content', domain: 1})
-  //   );
+  function testSetEnsNameFor_passIfAuthorized(address caller, string calldata _name) public {
+    vm.assume(bytes(_name).length != 0);
 
-  //   // Give the authorisation to set ENS to caller
-  //   uint256[] memory permissionIndexes = new uint256[](1);
-  //   permissionIndexes[0] = JBHandlesOperations.SET_ENS_NAME_FOR;
+    uint256 _projectId = jbProjects.createFor(
+      projectOwner,
+      JBProjectMetadata({content: 'content', domain: 1})
+    );
 
-  //   vm.prank(projectOwner);
-  //   jbOperatorStore.setOperator(
-  //     JBOperatorData({operator: caller, domain: 1, permissionIndexes: permissionIndexes})
-  //   );
+    // Give the authorisation to set ENS to caller
+    uint256[] memory permissionIndexes = new uint256[](1);
+    permissionIndexes[0] = JBHandlesOperations.SET_ENS_NAME_FOR;
 
-  //   // Test event
-  //   vm.expectEmit(true, true, false, true);
-  //   emit SetEnsName(_projectId, _name);
+    vm.prank(projectOwner);
+    jbOperatorStore.setOperator(
+      JBOperatorData({operator: caller, domain: 1, permissionIndexes: permissionIndexes})
+    );
 
-  //   vm.prank(caller);
-  //   projectHandle.setEnsNameFor(_projectId, _name);
+    string[] memory _nameParts = new string[](1);
+    _nameParts[0] = _name;
 
-  //   // Control: correct ENS name?
-  //   assertEq(projectHandle.ensNameOf(_projectId), ENSName({name: _name, subdomain: ''}));
-  // }
+    // Test event
+    vm.expectEmit(true, true, true, true);
+    emit SetEnsNameParts(_projectId, _name, _nameParts, caller);
+
+    vm.prank(caller);
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
+
+    // Control: correct ENS name?
+    assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
+  }
 
   // function testSetEnsNameFor_revertIfNotAuthorized(
   //   uint96 authorizationIndex,
@@ -289,8 +294,8 @@ contract ContractTest is Test {
   // ---------------------------- helpers ---- ------------------------- //
   //*********************************************************************//
 
-  // Assert equals between two ENSName struct
-  function _assertEq(string[] memory _first, string[] memory _second) internal {
+  // Assert equals between two string arrays
+  function assertEq(string[] memory _first, string[] memory _second) internal {
     assertEq(_first.length, _second.length);
     for (uint256 _i; _i < _first.length; _i++)
       assertEq(keccak256(bytes(_first[_i])), keccak256(bytes(_second[_i])));
