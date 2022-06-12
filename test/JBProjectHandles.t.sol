@@ -162,9 +162,39 @@ contract ContractTest is Test {
     assertEq(projectHandle.ensNamePartsOf(_projectId), new string[](0));
   }
 
-  // //*********************************************************************//
-  // // ---------------------------- handleOf(..) ------------------------- //
-  // //*********************************************************************//
+  function testSetEnsNameWithSubdomainFor_RevertIfEmptyElementInNameParts(
+    string memory _name,
+    string memory _subdomain,
+    string memory _subsubdomain
+  ) public {
+    vm.assume(
+      bytes(_name).length == 0
+      || bytes(_subdomain).length == 0
+      || bytes(_subsubdomain).length == 0
+    );
+
+    uint256 _projectId = jbProjects.createFor(
+      projectOwner,
+      JBProjectMetadata({content: 'content', domain: 1})
+    );
+
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](3);
+    _nameParts[0] = _subsubdomain;
+    _nameParts[1] = _subdomain;
+    _nameParts[2] = _name;
+
+    vm.prank(projectOwner);
+    vm.expectRevert(abi.encodeWithSignature('EMPTY_NAME_PART()'));
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
+
+    // Control: ENS has correct name and domain
+    assertEq(projectHandle.ensNamePartsOf(_projectId), new string[](0));
+  }
+
+  //*********************************************************************//
+  // ---------------------------- handleOf(..) ------------------------- //
+  //*********************************************************************//
 
   // function testHandleOf_returnsEmptyStringIfNoENSset(uint256 projectId) public {
   //   // No ENS set -> empty
