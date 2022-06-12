@@ -196,10 +196,10 @@ contract ContractTest is Test {
   // ---------------------------- handleOf(..) ------------------------- //
   //*********************************************************************//
 
-  // function testHandleOf_returnsEmptyStringIfNoENSset(uint256 projectId) public {
-  //   // No ENS set -> empty
-  //   assertEq(projectHandle.handleOf(projectId), '');
-  // }
+  function testHandleOf_returnsEmptyStringIfNoENSset(uint256 projectId) public {
+    // No ENS set -> empty
+    assertEq(projectHandle.handleOf(projectId), '');
+  }
 
   // function testHandleOf_returnsEmptyStringIfReverseIdDoesNotMatchProjectId(
   //   uint256 projectId,

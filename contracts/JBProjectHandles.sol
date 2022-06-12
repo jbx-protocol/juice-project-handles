@@ -90,8 +90,8 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   function handleOf(uint256 _projectId) external view override returns (string memory) {
     string[] memory _ensNameParts = _ensNamePartsOf[_projectId];
 
-    // Return empty string if the first element isn't set.
-    if (_isEmptyString(_ensNameParts[0])) return '';
+    // Return empty string if ENS isn't set.
+    if (_ensNameParts.length == 0) return '';
 
     // Find the projectId that the text record of the ENS name is mapped to.
     string memory reverseId = ensTextResolver.text(_namehash(_ensNameParts), TEXT_KEY);
