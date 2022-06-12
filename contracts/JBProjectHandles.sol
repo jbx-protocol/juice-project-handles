@@ -266,16 +266,4 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
       result += (uint256(jval) * (10**(exp - 1)));
     }
   }
-
-  /** 
-    @notice 
-    Returns true if string is empty.
-
-    @param _str The string to check if empty
-
-    @return True if string is empty.
-  */
-  function _isEmptyString(string memory _str) internal pure returns (bool) {
-    return bytes(_str).length == 0;
-  }
 }
