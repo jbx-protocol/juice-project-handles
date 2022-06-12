@@ -16,7 +16,7 @@ interface IJBProjectHandles {
 
   function ensNamePartsOf(uint256 _projectId) external view returns (string[] memory);
 
-  function jbProjects() external view returns (IJBProjects);
+  function projects() external view returns (IJBProjects);
 
   function ensTextResolver() external view returns (ITextResolver);
 

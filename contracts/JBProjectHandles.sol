@@ -63,9 +63,9 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice
-    The JBProjects contract address.
+    A contract which mints ERC-721's that represent project ownership and transfers.
   */
-  IJBProjects public immutable override jbProjects;
+  IJBProjects public immutable override projects;
 
   /** 
     @notice
@@ -121,16 +121,16 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   //*********************************************************************//
 
   /** 
-    @param _jbProjects A contract which mints ERC-721's that represent project ownership and transfers.
+    @param _projects A contract which mints ERC-721's that represent project ownership and transfers.
     @param _jbOperatorStore A contract storing operator assignments.
     @param _ensTextResolver The ENS text resolver contract address.
   */
   constructor(
-    IJBProjects _jbProjects,
+    IJBProjects _projects,
     IJBOperatorStore _jbOperatorStore,
     ITextResolver _ensTextResolver
   ) JBOperatable(_jbOperatorStore) {
-    jbProjects = _jbProjects;
+    projects = _projects;
     ensTextResolver = _ensTextResolver;
   }
 
@@ -155,7 +155,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     external
     override
     requirePermission(
-      jbProjects.ownerOf(_projectId),
+      projects.ownerOf(_projectId),
       _projectId,
       JBHandlesOperations.SET_ENS_NAME_FOR
     )
