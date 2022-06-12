@@ -89,6 +89,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @return The project's handle.
   */
   function handleOf(uint256 _projectId) external view override returns (string memory) {
+    // Get a reference to the project's ENS name parts.
     string[] memory _ensNameParts = _ensNamePartsOf[_projectId];
 
     // Return empty string if ENS isn't set.
