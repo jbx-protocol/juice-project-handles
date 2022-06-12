@@ -237,34 +237,26 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     @param _ensNameParts The ENS name to format.
 
-    @return The formatted ENS name.
+    @return _ensName The formatted ENS name.
   */
-  function _formatEnsName(string[] memory _ensNameParts) internal pure returns (string memory) {
+  function _formatEnsName(string[] memory _ensNameParts) internal pure returns (string memory _ensName) {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _ensNameParts.length;
 
-    // A reference to the formatted bytes.
-    bytes memory _formattedBytes;
-
-    // Hash each part.
+    // Concatenate each name part.
     for (uint256 _i = 1; _i <= _partsLength; ) {
-      // Format from the last part to the first part.
-      _formattedBytes = bytes.concat(
-        _formattedBytes,
-        abi.encodePacked(_ensNameParts[_partsLength - _i])
-      );
+
+      _ensName = string(abi.encodePacked(_ensName, _ensNameParts[_partsLength - _i]));
 
       // Add a dot if this is part isn't the last.
-      if (_i < _partsLength) bytes.concat(_formattedBytes, abi.encodePacked('.'));
+      if (_i < _partsLength) _ensName = string(abi.encodePacked(_ensName, '.'));
 
       unchecked {
         ++_i;
       }
     }
 
-    bytes.concat(_formattedBytes, abi.encodePacked('.eth'));
-
-    return string(_formattedBytes);
+    _ensName = string(abi.encodePacked(_ensName, '.eth'));
   }
 
   /** 
