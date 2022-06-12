@@ -79,12 +79,12 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Returns the handle for a Juicebox project.
+    Returns the handle for a project.
 
     @dev 
     Requires a TXT record for the `TEXT_KEY` that matches the `_projectId`.
 
-    @param _projectId The ID of the Juicebox project to get the handle of.
+    @param _projectId The ID of the project to get the handle of.
 
     @return The project's handle.
   */
@@ -106,9 +106,9 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    The parts of the stored ENS name of Juicebox project.
+    The parts of the stored ENS name of project.
 
-    @param _projectId The ID of the Juicebox project to get the ENS name of.
+    @param _projectId The ID of the project to get the ENS name of.
 
     @return The parts of the ENS name for a project.
   */
@@ -140,7 +140,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Associate an ENS name with a Juicebox project.
+    Associate an ENS name with a project.
 
     @dev
     ["jbx", "dao", "foo"] represents foo.dao.jbx.eth.
@@ -148,7 +148,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @dev
     The caller must be the project's owner, or a operator.
 
-    @param _projectId The ID of the Juicebox project to set an ENS handle for.
+    @param _projectId The ID of the project to set an ENS handle for.
     @param _parts The parts of the ENS domain to use as the project handle, excluding the trailing .eth.
   */
   function setEnsNamePartsFor(uint256 _projectId, string[] memory _parts)
