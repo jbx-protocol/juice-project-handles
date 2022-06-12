@@ -36,10 +36,10 @@ contract ContractTest is Test {
   }
 
   //*********************************************************************//
-  // ------------------------ SetEnsNameFor(..) ------------------------ //
+  // ------------------------ SetEnsNamePartsFor(..) ------------------- //
   //*********************************************************************//
 
-  function testSetEnsNamePartsFor_passIfProjectOwner(string calldata _name) public {
+  function testSetEnsNamePartsFor_passIfCallerIsProjectOwnerAndOnlyName(string calldata _name) public {
     vm.assume(bytes(_name).length != 0);
 
     uint256 _projectId = jbProjects.createFor(
@@ -52,7 +52,7 @@ contract ContractTest is Test {
 
     // Test the event emitted
     vm.expectEmit(true, true, true, true);
-    emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
+    emit SetEnsNameParts(_projectId, string(abi.encodePacked(_name, '.eth')), _nameParts, projectOwner);
 
     vm.prank(projectOwner);
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
@@ -61,7 +61,7 @@ contract ContractTest is Test {
     assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
   }
 
-  function testSetEnsNameFor_passIfAuthorized(address caller, string calldata _name) public {
+  function testSetEnsNameFor_passIfAuthorizedCallerAndOnlyName(address caller, string calldata _name) public {
     vm.assume(bytes(_name).length != 0);
 
     uint256 _projectId = jbProjects.createFor(
@@ -83,7 +83,7 @@ contract ContractTest is Test {
 
     // Test event
     vm.expectEmit(true, true, true, true);
-    emit SetEnsNameParts(_projectId, _name, _nameParts, caller);
+    emit SetEnsNameParts(_projectId, string(abi.encodePacked(_name, '.eth')), _nameParts, caller);
 
     vm.prank(caller);
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
@@ -92,140 +92,75 @@ contract ContractTest is Test {
     assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
   }
 
-  // function testSetEnsNameFor_revertIfNotAuthorized(
-  //   uint96 authorizationIndex,
-  //   address caller,
-  //   string calldata _name
-  // ) public {
-  //   vm.assume(
-  //     authorizationIndex != JBHandlesOperations.SET_ENS_NAME_FOR && authorizationIndex < 255
-  //   );
-  //   vm.assume(caller != projectOwner);
-  //   uint256 _projectId = jbProjects.createFor(
-  //     projectOwner,
-  //     JBProjectMetadata({content: 'content', domain: 1})
-  //   );
+  function testSetEnsNameWithSubdomainFor_passIfMultipleSubdomainLevels(
+    string memory _name,
+    string memory _subdomain,
+    string memory _subsubdomain
+  ) public {
+    vm.assume(bytes(_name).length > 0 && bytes(_subdomain).length > 0  && bytes(_subsubdomain).length > 0);
 
-  //   // Is the caller not authorized by default?
-  //   vm.prank(caller);
-  //   vm.expectRevert(abi.encodeWithSignature('UNAUTHORIZED()'));
-  //   projectHandle.setEnsNameFor(_projectId, _name);
+    uint256 _projectId = jbProjects.createFor(
+      projectOwner,
+      JBProjectMetadata({content: 'content', domain: 1})
+    );
 
-  //   // Still noot authorized if wrong permission index
-  //   uint256[] memory permissionIndexes = new uint256[](1);
-  //   permissionIndexes[0] = authorizationIndex;
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](3);
+    _nameParts[0] = _subsubdomain;
+    _nameParts[1] = _subdomain;
+    _nameParts[2] = _name;
 
-  //   vm.prank(projectOwner);
-  //   jbOperatorStore.setOperator(
-  //     JBOperatorData({operator: caller, domain: 1, permissionIndexes: permissionIndexes})
-  //   );
+    string memory _fullName = string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain, '.eth'));
 
-  //   vm.prank(caller);
-  //   vm.expectRevert(abi.encodeWithSignature('UNAUTHORIZED()'));
-  //   projectHandle.setEnsNameFor(_projectId, _name);
+    // Test event
+    vm.expectEmit(true, true, true, true);
+    emit SetEnsNameParts(_projectId, _fullName, _nameParts, projectOwner);
 
-  //   // Control: ENS is still empty
-  //   assertEq(projectHandle.ensNameOf(_projectId), ENSName({name: '', subdomain: ''}));
-  // }
+    vm.prank(projectOwner);
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
-  // //*********************************************************************//
-  // // ------------------ setEnsNameWithSubdomainFor(..) ----------------- //
-  // //*********************************************************************//
+    // Control: ENS has correct name and domain
+    assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
+  }
 
-  // function testSetEnsNameWithSubdomainFor_passIfProjectOwner(
-  //   string calldata _name,
-  //   string calldata _subdomain
-  // ) public {
-  //   vm.assume(bytes(_name).length > 0 && bytes(_subdomain).length > 0);
-  //   uint256 _projectId = jbProjects.createFor(
-  //     projectOwner,
-  //     JBProjectMetadata({content: 'content', domain: 1})
-  //   );
+  function testSetEnsNameFor_revertIfNotAuthorized(
+    uint96 authorizationIndex,
+    address caller,
+    string calldata _name
+  ) public {
+    vm.assume(
+      authorizationIndex != JBHandlesOperations.SET_ENS_NAME_FOR && authorizationIndex < 255
+    );
+    vm.assume(caller != projectOwner);
+    uint256 _projectId = jbProjects.createFor(
+      projectOwner,
+      JBProjectMetadata({content: 'content', domain: 1})
+    );
 
-  //   // SUBDOMAIN.NAME.ETH for event testing
-  //   string memory fullName = string(abi.encodePacked(_subdomain, '.', _name));
+    string[] memory _nameParts = new string[](1);
+    _nameParts[0] = _name;
 
-  //   // Test event
-  //   vm.expectEmit(true, true, false, true);
-  //   emit SetEnsName(_projectId, fullName);
+    // Is the caller not authorized by default?
+    vm.prank(caller);
+    vm.expectRevert(abi.encodeWithSignature('UNAUTHORIZED()'));
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
-  //   vm.prank(projectOwner);
-  //   projectHandle.setEnsNameWithSubdomainFor(_projectId, _name, _subdomain);
+    // Still noot authorized if wrong permission index
+    uint256[] memory permissionIndexes = new uint256[](1);
+    permissionIndexes[0] = authorizationIndex;
 
-  //   // Control: ENS has correct name and domain
-  //   assertEq(projectHandle.ensNameOf(_projectId), ENSName({name: _name, subdomain: _subdomain}));
-  // }
+    vm.prank(projectOwner);
+    jbOperatorStore.setOperator(
+      JBOperatorData({operator: caller, domain: 1, permissionIndexes: permissionIndexes})
+    );
 
-  // function testSetEnsNameWithSubdomainFor_passIfAuthorized(
-  //   address caller,
-  //   string calldata _name,
-  //   string calldata _subdomain
-  // ) public {
-  //   vm.assume(bytes(_name).length > 0 && bytes(_subdomain).length > 0);
-  //   uint256 _projectId = jbProjects.createFor(
-  //     projectOwner,
-  //     JBProjectMetadata({content: 'content', domain: 1})
-  //   );
+    vm.prank(caller);
+    vm.expectRevert(abi.encodeWithSignature('UNAUTHORIZED()'));
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
-  //   // SUBDOMAIN.NAME.ETH for event testing
-  //   string memory fullName = string(abi.encodePacked(_subdomain, '.', _name));
-
-  //   // Give permission
-  //   uint256[] memory permissionIndexes = new uint256[](1);
-  //   permissionIndexes[0] = JBHandlesOperations.SET_ENS_NAME_FOR;
-
-  //   vm.prank(projectOwner);
-  //   jbOperatorStore.setOperator(
-  //     JBOperatorData({operator: caller, domain: 1, permissionIndexes: permissionIndexes})
-  //   );
-
-  //   // Test event
-  //   vm.expectEmit(true, true, false, true);
-  //   emit SetEnsName(_projectId, fullName);
-
-  //   vm.prank(caller);
-  //   projectHandle.setEnsNameWithSubdomainFor(_projectId, _name, _subdomain);
-
-  //   // Control: ENS has correct name and domain
-  //   assertEq(projectHandle.ensNameOf(_projectId), ENSName({name: _name, subdomain: _subdomain}));
-  // }
-
-  // function testSetEnsNameWithSubdomainFor_revertIfNotAuthorized(
-  //   uint96 authorizationIndex,
-  //   address caller,
-  //   string calldata _name,
-  //   string calldata _subdomain
-  // ) public {
-  //   vm.assume(
-  //     authorizationIndex != JBHandlesOperations.SET_ENS_NAME_FOR && authorizationIndex < 255
-  //   );
-  //   vm.assume(caller != projectOwner);
-  //   uint256 _projectId = jbProjects.createFor(
-  //     projectOwner,
-  //     JBProjectMetadata({content: 'content', domain: 1})
-  //   );
-
-  //   // Not authorized by default
-  //   vm.prank(caller);
-  //   vm.expectRevert(abi.encodeWithSignature('UNAUTHORIZED()'));
-  //   projectHandle.setEnsNameWithSubdomainFor(_projectId, _name, _subdomain);
-
-  //   // Not authorized with the wrong permission index
-  //   uint256[] memory permissionIndexes = new uint256[](1);
-  //   permissionIndexes[0] = authorizationIndex;
-
-  //   vm.prank(projectOwner);
-  //   jbOperatorStore.setOperator(
-  //     JBOperatorData({operator: caller, domain: 1, permissionIndexes: permissionIndexes})
-  //   );
-
-  //   vm.prank(caller);
-  //   vm.expectRevert(abi.encodeWithSignature('UNAUTHORIZED()'));
-  //   projectHandle.setEnsNameWithSubdomainFor(_projectId, _name, _subdomain);
-
-  //   // Control: No ENS
-  //   assertEq(projectHandle.ensNameOf(_projectId), ENSName({name: '', subdomain: ''}));
-  // }
+    // Control: ENS is still empty
+    assertEq(projectHandle.ensNamePartsOf(_projectId), new string[](0));
+  }
 
   // //*********************************************************************//
   // // ---------------------------- handleOf(..) ------------------------- //
