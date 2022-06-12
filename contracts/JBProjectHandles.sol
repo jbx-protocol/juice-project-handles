@@ -262,6 +262,8 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
       }
     }
 
+    bytes.concat(_formattedBytes, abi.encodePacked('.eth'));
+
     return string(_formattedBytes);
   }
 
