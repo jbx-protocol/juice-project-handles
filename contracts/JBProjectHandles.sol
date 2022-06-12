@@ -172,7 +172,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     The caller must be the project's owner, or a operator.
 
     @param _projectId The ID of the Juicebox project to set an ENS handle for.
-    @param _name The ENS domain to use as project handle, excluding the trailing .eth.
+    @param _name The ENS domain to use as the project handle, excluding the trailing .eth.
   */
   function _setEnsNameFor(uint256 _projectId, ENSName memory _name)
     internal
