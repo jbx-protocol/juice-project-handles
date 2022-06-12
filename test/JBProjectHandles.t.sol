@@ -40,7 +40,7 @@ contract ContractTest is Test {
   //*********************************************************************//
 
   function testSetEnsNamePartsFor_passIfProjectOwner(string memory _name) public {
-    if (bytes(_name).length == 0) return;
+    vm.assume(bytes(_name).length != 0);
 
     uint256 _projectId = jbProjects.createFor(
       projectOwner,
@@ -51,7 +51,7 @@ contract ContractTest is Test {
     _nameParts[0] = _name;
 
     // Test the event emitted
-    vm.expectEmit(true, true, false, true);
+    vm.expectEmit(true, true, true, true);
     emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
 
     vm.prank(projectOwner);
