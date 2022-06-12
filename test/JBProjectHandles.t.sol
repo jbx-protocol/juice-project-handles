@@ -192,6 +192,23 @@ contract ContractTest is Test {
     assertEq(projectHandle.ensNamePartsOf(_projectId), new string[](0));
   }
 
+  function testSetEnsNameWithSubdomainFor_RevertIfEmptyNameParts() public {
+    uint256 _projectId = jbProjects.createFor(
+      projectOwner,
+      JBProjectMetadata({content: 'content', domain: 1})
+    );
+
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](0);
+
+    vm.prank(projectOwner);
+    vm.expectRevert(abi.encodeWithSignature('NO_PARTS()'));
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
+
+    // Control: ENS has correct name and domain
+    assertEq(projectHandle.ensNamePartsOf(_projectId), new string[](0));
+  }
+
   //*********************************************************************//
   // ---------------------------- handleOf(..) ------------------------- //
   //*********************************************************************//
