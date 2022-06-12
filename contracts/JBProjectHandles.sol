@@ -83,7 +83,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     ENSName memory ensName = _ensNameOf[_projectId];
 
     // Return empty string if no ENS name set
-    if (_isEmptyString(ensName.name) && _isEmptyString(ensName.subdomain)) return '';
+    if (_isEmptyString(ensName.name)) return '';
 
     string memory reverseId = ensTextResolver.text(_namehash(ensName), TEXT_KEY);
 
