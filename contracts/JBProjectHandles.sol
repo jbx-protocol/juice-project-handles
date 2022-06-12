@@ -30,6 +30,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   // --------------------------- custom errors ------------------------- //
   //*********************************************************************//
   error EMPTY_NAME_PART();
+  error NO_PARTS();
 
   //*********************************************************************//
   // --------------------- private stored properties ------------------- //
@@ -99,11 +100,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Return empty string if text record from ENS name doesn't match projectId
     if (_stringToUint(reverseId) != _projectId) return '';
 
-<<<<<<< HEAD
-    // Format the name.
-=======
     // Format the handle from the name parts.
->>>>>>> 313259c (_formatENSName => _formatHandle)
     return _formatHandle(_ensNameParts);
   }
 
@@ -165,6 +162,9 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _parts.length;
+
+    // Make sure there are ens name parts.
+    if (_parts.length == 0) revert NO_PARTS();
 
     // Make sure no provided parts are empty.
     for (uint256 _i = 0; _i < _partsLength; ) {
@@ -245,13 +245,16 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     @return _handle The formatted ENS handle.
   */
-  function _formatHandle(string[] memory _ensNameParts) internal pure returns (string memory _handle) {
+  function _formatHandle(string[] memory _ensNameParts)
+    internal
+    pure
+    returns (string memory _handle)
+  {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _ensNameParts.length;
 
     // Concatenate each name part.
     for (uint256 _i = 1; _i <= _partsLength; ) {
-
       _handle = string(abi.encodePacked(_handle, _ensNameParts[_partsLength - _i]));
 
       // Add a dot if this is part isn't the last.
