@@ -46,13 +46,15 @@ contract ContractTest is Test {
     );
 
     string[] memory _nameParts = new string[](1);
-    _nameParts[1] = _name;
-
-    // Test the event emitted
-    vm.expectEmit(true, true, false, true);
-    emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
+    _nameParts[0] = _name;
 
     vm.prank(projectOwner);
+    if (bytes(_name).length == 0) vm.expectRevert(abi.encodeWithSignature('EMPTY_NAME_PART()'));
+    else {
+      // Test the event emitted
+      vm.expectEmit(true, true, false, true);
+      emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
+    }
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
     // Control: correct ENS name?
