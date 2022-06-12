@@ -31,11 +31,11 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   //*********************************************************************//
 
   /** 
-      @notice
-      Mapping of project ID to ENS name
+    @notice
+    Mapping of project ID to ENS name
 
-      _projectId The ID of the project to get an ENS name for.
-    */
+    _projectId The ID of the project to get an ENS name for.
+  */
   mapping(uint256 => ENSName) private _ensNameOf;
 
   //*********************************************************************//
