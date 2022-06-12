@@ -40,6 +40,8 @@ contract ContractTest is Test {
   //*********************************************************************//
 
   function testSetEnsNamePartsFor_passIfProjectOwner(string memory _name) public {
+    if (bytes(_name).length == 0) return;
+
     uint256 _projectId = jbProjects.createFor(
       projectOwner,
       JBProjectMetadata({content: 'content', domain: 1})
@@ -48,17 +50,15 @@ contract ContractTest is Test {
     string[] memory _nameParts = new string[](1);
     _nameParts[0] = _name;
 
+    // Test the event emitted
+    vm.expectEmit(true, true, false, true);
+    emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
+
     vm.prank(projectOwner);
-    if (bytes(_name).length == 0) vm.expectRevert(abi.encodeWithSignature('EMPTY_NAME_PART()'));
-    else {
-      // Test the event emitted
-      vm.expectEmit(true, true, false, true);
-      emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
-    }
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
     // Control: correct ENS name?
-    // assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
+    assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
   }
 
   // function testSetEnsNameFor_passIfAuthorized(address caller, string calldata _name) public {
