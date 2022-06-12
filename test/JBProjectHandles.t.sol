@@ -218,59 +218,72 @@ contract ContractTest is Test {
     assertEq(projectHandle.handleOf(projectId), '');
   }
 
-  // function testHandleOf_returnsEmptyStringIfReverseIdDoesNotMatchProjectId(
-  //   uint256 projectId,
-  //   uint256 _reverseId,
-  //   string calldata _name,
-  //   string calldata _subdomain
-  // ) public {
-  //   vm.assume(projectId != _reverseId);
+  function testHandleOf_returnsEmptyStringIfReverseIdDoesNotMatchProjectId(
+    uint256 projectId,
+    uint256 _reverseId,
+    string calldata _name,
+    string calldata _subdomain,
+    string calldata _subsubdomain
+  ) public {
+    vm.assume(projectId != _reverseId);
 
-  //   string memory reverseId = Strings.toString(_reverseId);
-  //   string memory KEY = projectHandle.TEXT_KEY();
+    string memory reverseId = Strings.toString(_reverseId);
+    string memory KEY = projectHandle.TEXT_KEY();
 
-  //   vm.mockCall(
-  //     address(ensTextResolver),
-  //     abi.encodeWithSelector(
-  //       ITextResolver.text.selector,
-  //       _namehash(ENSName({name: _name, subdomain: _subdomain})),
-  //       KEY
-  //     ),
-  //     abi.encode(reverseId)
-  //   );
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](3);
+    _nameParts[0] = _subsubdomain;
+    _nameParts[1] = _subdomain;
+    _nameParts[2] = _name;
 
-  //   assertEq(projectHandle.handleOf(projectId), '');
-  // }
+    vm.mockCall(
+      address(ensTextResolver),
+      abi.encodeWithSelector(
+        ITextResolver.text.selector,
+        _namehash(_nameParts),
+        KEY
+      ),
+      abi.encode(reverseId)
+    );
 
-  // function testHandleOf_returnsHandleIfReverseIdMatchProjectId(
-  //   string calldata _name,
-  //   string calldata _subdomain
-  // ) public {
-  //   vm.assume(bytes(_name).length > 0 && bytes(_subdomain).length > 0);
+    assertEq(projectHandle.handleOf(projectId), '');
+  }
 
-  //   uint256 _projectId = jbProjects.createFor(
-  //     projectOwner,
-  //     JBProjectMetadata({content: 'content', domain: 1})
-  //   );
+  function testHandleOf_returnsHandleIfReverseIdMatchProjectId(
+    string calldata _name,
+    string calldata _subdomain,
+    string calldata _subsubdomain
+  ) public {
+    vm.assume(bytes(_name).length > 0 && bytes(_subdomain).length > 0 && bytes(_subsubdomain).length > 0);
 
-  //   string memory reverseId = Strings.toString(_projectId);
-  //   string memory KEY = projectHandle.TEXT_KEY();
+    uint256 _projectId = jbProjects.createFor(
+      projectOwner,
+      JBProjectMetadata({content: 'content', domain: 1})
+    );
 
-  //   vm.prank(projectOwner);
-  //   projectHandle.setEnsNameWithSubdomainFor(_projectId, _name, _subdomain);
+    string memory KEY = projectHandle.TEXT_KEY();
 
-  //   vm.mockCall(
-  //     address(ensTextResolver),
-  //     abi.encodeWithSelector(
-  //       ITextResolver.text.selector,
-  //       _namehash(ENSName({name: _name, subdomain: _subdomain})),
-  //       KEY
-  //     ),
-  //     abi.encode(Strings.toString(_projectId))
-  //   );
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](3);
+    _nameParts[0] = _subsubdomain;
+    _nameParts[1] = _subdomain;
+    _nameParts[2] = _name;
 
-  //   assertEq(projectHandle.handleOf(_projectId), string(abi.encodePacked(_subdomain, '.', _name)));
-  // }
+    vm.prank(projectOwner);
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
+
+    vm.mockCall(
+      address(ensTextResolver),
+      abi.encodeWithSelector(
+        ITextResolver.text.selector,
+        _namehash(_nameParts),
+        KEY
+      ),
+      abi.encode(Strings.toString(_projectId))
+    );
+
+    assertEq(projectHandle.handleOf(_projectId), string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain)));
+  }
 
   //*********************************************************************//
   // ---------------------------- helpers ---- ------------------------- //
