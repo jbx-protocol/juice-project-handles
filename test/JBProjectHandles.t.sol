@@ -58,7 +58,7 @@ contract ContractTest is Test {
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
     // Control: correct ENS name?
-    // _assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
+    _assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
   }
 
   // function testSetEnsNameFor_passIfAuthorized(address caller, string calldata _name) public {

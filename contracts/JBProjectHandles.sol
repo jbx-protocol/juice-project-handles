@@ -247,11 +247,15 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     bytes memory _formattedBytes;
 
     // Hash each part.
-    for (uint256 _i = _partsLength - 1; _i >= 0; ) {
-      _formattedBytes = bytes.concat(_formattedBytes, abi.encodePacked(_ensNameParts[_i]));
-      if (_i > 0) bytes.concat(_formattedBytes, abi.encodePacked('.'));
+    for (uint256 _i = 1; _i <= _partsLength; ) {
+      _formattedBytes = bytes.concat(
+        _formattedBytes,
+        abi.encodePacked(_ensNameParts[_partsLength - _i])
+      );
+      if (_i < _partsLength) bytes.concat(_formattedBytes, abi.encodePacked('.'));
+
       unchecked {
-        --_i;
+        ++_i;
       }
     }
 
