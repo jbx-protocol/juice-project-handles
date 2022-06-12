@@ -53,7 +53,7 @@ contract ContractTest is Test {
     emit SetEnsNameParts(_projectId, _name, _nameParts, projectOwner);
 
     vm.prank(projectOwner);
-    if (bytes(_name).length == 0) projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
 
     // Control: correct ENS name?
     // assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
