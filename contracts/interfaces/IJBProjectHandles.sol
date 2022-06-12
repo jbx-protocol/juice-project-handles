@@ -3,20 +3,18 @@ pragma solidity 0.8.6;
 
 import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjects.sol';
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
-import '../structs/ENSName.sol';
 
 interface IJBProjectHandles {
-  event SetEnsName(uint256 indexed projectId, string indexed ensName);
+  event SetEnsNameParts(
+    uint256 indexed projectId,
+    string indexed ensName,
+    string[] parts,
+    address caller
+  );
 
-  function setEnsNameFor(uint256 _projectId, string calldata _name) external;
+  function setEnsNamePartsFor(uint256 _projectId, string[] memory _parts) external;
 
-  function setEnsNameWithSubdomainFor(
-    uint256 _projectId,
-    string calldata _name,
-    string calldata _subdomain
-  ) external;
-
-  function ensNameOf(uint256 _projectId) external view returns (ENSName memory);
+  function ensNamePartsOf(uint256 _projectId) external view returns (string[] memory);
 
   function jbProjects() external view returns (IJBProjects);
 

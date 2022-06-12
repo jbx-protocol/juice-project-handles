@@ -27,16 +27,24 @@ import './libraries/JBHandlesOperations.sol';
 */
 contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   //*********************************************************************//
+  // --------------------------- custom errors ------------------------- //
+  //*********************************************************************//
+  error EMPTY_NAME_PART();
+
+  //*********************************************************************//
   // --------------------- private stored properties ------------------- //
   //*********************************************************************//
 
   /** 
     @notice
-    Mapping of project ID to ENS name
+    Mapping of project ID to an array of strings that make up an ENS name and its subdomains.
+
+    @dev
+    ["jbx", "dao", "foo"] represents foo.dao.jbx.eth.
 
     _projectId The ID of the project to get an ENS name for.
   */
-  mapping(uint256 => ENSName) private _ensNameOf;
+  mapping(uint256 => string[]) private _ensNamePartsOf;
 
   //*********************************************************************//
   // --------------- public immutable stored properties ---------------- //
@@ -80,29 +88,31 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @return The project's handle.
   */
   function handleOf(uint256 _projectId) external view override returns (string memory) {
-    ENSName memory ensName = _ensNameOf[_projectId];
+    string[] memory _ensNameParts = _ensNamePartsOf[_projectId];
 
-    // Return empty string if no ENS name set
-    if (_isEmptyString(ensName.name)) return '';
+    // Return empty string if the first element isn't set.
+    if (_isEmptyString(_ensNameParts[0])) return '';
 
-    string memory reverseId = ensTextResolver.text(_namehash(ensName), TEXT_KEY);
+    // Find the projectId that the text record of the ENS name is mapped to.
+    string memory reverseId = ensTextResolver.text(_namehash(_ensNameParts), TEXT_KEY);
 
-    // Return empty string if reverseId from ENS name doesn't match projectId
+    // Return empty string if text record from ENS name doesn't match projectId
     if (_stringToUint(reverseId) != _projectId) return '';
 
-    return _formatEnsName(ensName);
+    // Format the name.
+    return _formatEnsName(_ensNameParts);
   }
 
   /** 
     @notice 
-    The ensName of Juicebox project.
+    The parts of the stored ENS name of Juicebox project.
 
     @param _projectId The ID of the Juicebox project to get the ENS name of.
 
-    @return The ENS name for a project.
+    @return The parts of the ENS name for a project.
   */
-  function ensNameOf(uint256 _projectId) external view override returns (ENSName memory) {
-    return _ensNameOf[_projectId];
+  function ensNamePartsOf(uint256 _projectId) external view override returns (string[] memory) {
+    return _ensNamePartsOf[_projectId];
   }
 
   //*********************************************************************//
@@ -129,35 +139,41 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Sets a reverse record for a Juicebox project.
+    Associate an ENS name with a Juicebox project.
+
+    @dev
+    ["jbx", "dao", "foo"] represents foo.dao.jbx.eth.
 
     @dev
     The caller must be the project's owner, or a operator.
 
     @param _projectId The ID of the Juicebox project to set an ENS handle for.
-    @param _name The ENS domain to use as project handle, excluding the trailing .eth.
+    @param _parts The parts of the ENS domain to use as the project handle, excluding the trailing .eth.
   */
-  function setEnsNameFor(uint256 _projectId, string calldata _name) external override {
-    _setEnsNameFor(_projectId, ENSName({name: _name, subdomain: ''}));
-  }
+  function setEnsNamePartsFor(uint256 _projectId, string[] memory _parts)
+    external
+    override
+    requirePermission(
+      jbProjects.ownerOf(_projectId),
+      _projectId,
+      JBHandlesOperations.SET_ENS_NAME_FOR
+    )
+  {
+    // Get a reference to the number of parts are in the ENS name.
+    uint256 _partsLength = _parts.length;
 
-  /** 
-    @notice 
-    Sets a reverse record for a Juicebox project including a subdomain.
+    // Make sure no provided parts are empty.
+    for (uint256 _i = 0; _i < _partsLength; ) {
+      if (bytes(_parts[_i]).length == 0) revert EMPTY_NAME_PART();
+      unchecked {
+        ++_i;
+      }
+    }
 
-    @dev
-    The caller must be the project's owner, or a operator.
+    // Store the parts.
+    _ensNamePartsOf[_projectId] = _parts;
 
-    @param _projectId The ID of the Juicebox project to set an ENS handle for.
-    @param _name The ENS domain to use as project handle, excluding the trailing .eth.
-    @param _subdomain The subdomain to include in project handle.
-  */
-  function setEnsNameWithSubdomainFor(
-    uint256 _projectId,
-    string calldata _name,
-    string calldata _subdomain
-  ) external override {
-    _setEnsNameFor(_projectId, ENSName({name: _name, subdomain: _subdomain}));
+    emit SetEnsNameParts(_projectId, _formatEnsName(_parts), _parts, msg.sender);
   }
 
   //*********************************************************************//
@@ -166,30 +182,10 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    Set a reverse record for a Juicebox project.
+    Converts a string to a uint256.
 
     @dev
-    The caller must be the project's owner, or a operator.
-
-    @param _projectId The ID of the Juicebox project to set an ENS handle for.
-    @param _name The ENS domain to use as the project handle, excluding the trailing .eth.
-  */
-  function _setEnsNameFor(uint256 _projectId, ENSName memory _name)
-    internal
-    requirePermission(
-      jbProjects.ownerOf(_projectId),
-      _projectId,
-      JBHandlesOperations.SET_ENS_NAME_FOR
-    )
-  {
-    _ensNameOf[_projectId] = _name;
-
-    emit SetEnsName(_projectId, _formatEnsName(_name));
-  }
-
-  /** 
-    @notice 
-    Converts a string to a uint256.
+    Source: https://stackoverflow.com/questions/68976364/solidity-converting-number-strings-to-numbers
 
     @param _numstring The number string to be converted.
 
@@ -219,28 +215,47 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     @return namehash The namehash for an ensName.
   */
-  function _namehash(ENSName memory _ensName) internal pure returns (bytes32 namehash) {
+  function _namehash(string[] memory _ensName) internal pure returns (bytes32 namehash) {
     namehash = 0x0000000000000000000000000000000000000000000000000000000000000000;
     namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked('eth'))));
-    namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensName.name))));
-    if (!_isEmptyString(_ensName.subdomain))
-      namehash = keccak256(
-        abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensName.subdomain)))
-      );
+
+    // Get a reference to the number of parts are in the ENS name.
+    uint256 _nameLength = _ensName.length;
+
+    // Hash each part.
+    for (uint256 _i = 0; _i < _nameLength; ) {
+      namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensName[_i]))));
+      unchecked {
+        ++_i;
+      }
+    }
   }
 
   /** 
     @notice 
     Formats an ENS struct into string.
 
-    @param _ensName The ENS name to format.
+    @param _ensNameParts The ENS name to format.
 
-    @return ensName The formatted ENS name.
+    @return The formatted ENS name.
   */
-  function _formatEnsName(ENSName memory _ensName) internal pure returns (string memory ensName) {
-    if (!_isEmptyString(_ensName.subdomain))
-      ensName = string(abi.encodePacked(_ensName.subdomain, '.', _ensName.name));
-    else ensName = _ensName.name;
+  function _formatEnsName(string[] memory _ensNameParts) internal pure returns (string memory) {
+    // Get a reference to the number of parts are in the ENS name.
+    uint256 _partsLength = _ensNameParts.length;
+
+    // A reference to the formatted bytes.
+    bytes memory _formattedBytes;
+
+    // Hash each part.
+    for (uint256 _i = _partsLength - 1; _i >= 0; ) {
+      _formattedBytes = bytes.concat(_formattedBytes, abi.encodePacked(_ensNameParts[_i]));
+      if (_i > 0) bytes.concat(_formattedBytes, abi.encodePacked('.'));
+      unchecked {
+        --_i;
+      }
+    }
+
+    return string(_formattedBytes);
   }
 
   /** 
