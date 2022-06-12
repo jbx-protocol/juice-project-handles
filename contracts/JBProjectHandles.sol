@@ -205,7 +205,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     for (uint256 _i = 1; _i <= _partsLength; ) {
       _handle = string(abi.encodePacked(_handle, _ensNameParts[_partsLength - _i]));
 
-      // Add a dot if this is part isn't the last.
+      // Add a dot if this part isn't the last.
       if (_i < _partsLength) _handle = string(abi.encodePacked(_handle, '.'));
 
       unchecked {
