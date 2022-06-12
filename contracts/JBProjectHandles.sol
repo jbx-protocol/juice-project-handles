@@ -55,7 +55,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @notice
     The key of the ENS text record.
   */
-  string public constant TEXT_KEY = 'juicebox';
+  string public constant TEXT_KEY = 'handles.projects.jb';
 
   //*********************************************************************//
   // --------------------- public stored properties -------------------- //
@@ -71,7 +71,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @notice
     The ENS text resolver contract address.
   */
-  ITextResolver public immutable override ensTextResolver;
+  ITextResolver public immutable override textResolver;
 
   //*********************************************************************//
   // ------------------------- external views -------------------------- //
@@ -96,7 +96,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     if (_ensNameParts.length == 0) return '';
 
     // Find the projectId that the text record of the ENS name is mapped to.
-    string memory reverseId = ensTextResolver.text(_namehash(_ensNameParts), TEXT_KEY);
+    string memory reverseId = textResolver.text(_namehash(_ensNameParts), TEXT_KEY);
 
     // Return empty string if text record from ENS name doesn't match projectId
     if (_stringToUint(reverseId) != _projectId) return '';
@@ -124,15 +124,15 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   /** 
     @param _projects A contract which mints ERC-721's that represent project ownership and transfers.
     @param _jbOperatorStore A contract storing operator assignments.
-    @param _ensTextResolver The ENS text resolver contract address.
+    @param _textResolver The ENS text resolver contract address.
   */
   constructor(
     IJBProjects _projects,
     IJBOperatorStore _jbOperatorStore,
-    ITextResolver _ensTextResolver
+    ITextResolver _textResolver
   ) JBOperatable(_jbOperatorStore) {
     projects = _projects;
-    ensTextResolver = _ensTextResolver;
+    textResolver = _textResolver;
   }
 
   //*********************************************************************//

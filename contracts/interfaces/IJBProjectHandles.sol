@@ -18,7 +18,7 @@ interface IJBProjectHandles {
 
   function projects() external view returns (IJBProjects);
 
-  function ensTextResolver() external view returns (ITextResolver);
+  function textResolver() external view returns (ITextResolver);
 
   function handleOf(uint256 _projectId) external view returns (string memory);
 }
