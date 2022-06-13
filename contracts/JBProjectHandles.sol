@@ -123,14 +123,14 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @param _projects A contract which mints ERC-721's that represent project ownership and transfers.
-    @param _jbOperatorStore A contract storing operator assignments.
+    @param _operatorStore A contract storing operator assignments.
     @param _textResolver The ENS text resolver contract address.
   */
   constructor(
     IJBProjects _projects,
-    IJBOperatorStore _jbOperatorStore,
+    IJBOperatorStore _operatorStore,
     ITextResolver _textResolver
-  ) JBOperatable(_jbOperatorStore) {
+  ) JBOperatable(_operatorStore) {
     projects = _projects;
     textResolver = _textResolver;
   }
