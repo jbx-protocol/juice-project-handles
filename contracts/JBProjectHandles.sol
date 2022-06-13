@@ -19,7 +19,7 @@ import './libraries/JBHandlesOperations.sol';
 
   @dev
   Adheres to -
-  IJBProjectHandles: General interface for the generic controller methods in this contract that interacts with funding cycles and tokens according to the protocol's rules.
+  IJBProjectHandles: General interface for the methods in this contract that interact with the blockchain's state according to the protocol's rules.
 
   @dev
   Inherits from -
