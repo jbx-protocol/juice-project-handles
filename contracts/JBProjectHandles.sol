@@ -226,7 +226,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @return namehash The namehash for an ensName.
   */
   function _namehash(string[] memory _ensNameParts) internal pure returns (bytes32 namehash) {
-    namehash = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    // Hash the trailing "eth" suffix.
     namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked('eth'))));
 
     // Get a reference to the number of parts are in the ENS name.
