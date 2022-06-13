@@ -51,3 +51,5 @@ forge script DeployRinkeby --rpc-url $RINKEBY_RPC_PROVIDER_URL --broadcast --int
 ## Mainnet
 
 forge script DeployMainnet --rpc-url $RINKEBY_RPC_PROVIDER_URL --broadcast --interactives 1 --sender $SENDER_ADDRESS --verify --etherscan-api-key $ETHERSCAN_API_KEY
+
+The deployments are stored in ./broadcast
