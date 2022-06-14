@@ -3,6 +3,7 @@ pragma solidity 0.8.6;
 
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
 import '@openzeppelin/contracts/interfaces/IERC721.sol';
+import '@openzeppelin/contracts/utils/Strings.sol';
 import '@jbx-protocol/contracts-v2/contracts/abstract/JBOperatable.sol';
 import './interfaces/IJBProjectHandles.sol';
 import './libraries/JBHandlesOperations.sol';
@@ -99,7 +100,8 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     string memory textRecordProjectId = textResolver.text(_namehash(_ensNameParts), TEXT_KEY);
 
     // Return empty string if text record from ENS name doesn't match projectId.
-    if (_stringToUint(textRecordProjectId) != _projectId) return '';
+    if (keccak256(bytes(textRecordProjectId)) != keccak256(bytes(Strings.toString(_projectId))))
+      return '';
 
     // Format the handle from the name parts.
     return _formatHandle(_ensNameParts);
@@ -107,11 +109,11 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice 
-    The parts of the stored ENS name of project.
+    The parts of the stored ENS name of a project.
 
     @param _projectId The ID of the project to get the ENS name of.
 
-    @return The parts of the ENS name for a project.
+    @return The parts of the ENS name parts of a project.
   */
   function ensNamePartsOf(uint256 _projectId) external view override returns (string[] memory) {
     return _ensNamePartsOf[_projectId];
@@ -240,30 +242,6 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
       unchecked {
         ++_i;
       }
-    }
-  }
-
-  /** 
-    @notice 
-    Converts a string to a uint256.
-
-    @dev
-    Source: https://stackoverflow.com/questions/68976364/solidity-converting-number-strings-to-numbers
-
-    @param _numstring The number string to be converted.
-
-    @return result The uint converted from string.
-  */
-  function _stringToUint(string memory _numstring) internal pure returns (uint256 result) {
-    result = 0;
-    bytes memory stringBytes = bytes(_numstring);
-    for (uint256 i = 0; i < stringBytes.length; i++) {
-      uint256 exp = stringBytes.length - i;
-      bytes1 ival = stringBytes[i];
-      uint8 uval = uint8(ival);
-      uint256 jval = uval - uint256(0x30);
-
-      result += (uint256(jval) * (10**(exp - 1)));
     }
   }
 }
