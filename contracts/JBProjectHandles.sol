@@ -33,7 +33,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   error NO_PARTS();
 
   //*********************************************************************//
-  // --------------------- private stored properties ------------------- //
+  // --------------------- internal stored properties ------------------ //
   //*********************************************************************//
 
   /** 
@@ -45,7 +45,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     _projectId The ID of the project to get an ENS name for.
   */
-  mapping(uint256 => string[]) private _ensNamePartsOf;
+  mapping(uint256 => string[]) internal _ensNamePartsOf;
 
   //*********************************************************************//
   // --------------- public immutable stored properties ---------------- //
@@ -55,7 +55,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @notice
     The key of the ENS text record.
   */
-  string public constant TEXT_KEY = 'juicebox_project_id';
+  string public constant override TEXT_KEY = 'juicebox_project_id';
 
   //*********************************************************************//
   // --------------------- public stored properties -------------------- //
@@ -96,10 +96,10 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     if (_ensNameParts.length == 0) return '';
 
     // Find the projectId that the text record of the ENS name is mapped to.
-    string memory reverseId = textResolver.text(_namehash(_ensNameParts), TEXT_KEY);
+    string memory textRecordProjectId = textResolver.text(_namehash(_ensNameParts), TEXT_KEY);
 
     // Return empty string if text record from ENS name doesn't match projectId
-    if (_stringToUint(reverseId) != _projectId) return '';
+    if (_stringToUint(textRecordProjectId) != _projectId) return '';
 
     // Format the handle from the name parts.
     return _formatHandle(_ensNameParts);
