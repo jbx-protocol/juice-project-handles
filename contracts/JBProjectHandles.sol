@@ -98,7 +98,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Find the projectId that the text record of the ENS name is mapped to.
     string memory textRecordProjectId = textResolver.text(_namehash(_ensNameParts), TEXT_KEY);
 
-    // Return empty string if text record from ENS name doesn't match projectId
+    // Return empty string if text record from ENS name doesn't match projectId.
     if (_stringToUint(textRecordProjectId) != _projectId) return '';
 
     // Format the handle from the name parts.
