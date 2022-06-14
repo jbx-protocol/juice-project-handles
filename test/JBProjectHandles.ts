@@ -11,7 +11,7 @@ import {
   FIFSRegistrar,
   JBProjectHandles,
   PublicResolver,
-  TestJBProjects,
+  TestJBProjects
 } from "../typechain-types";
 import { labelhash, namehash } from "./utils";
 
@@ -32,6 +32,7 @@ let registrar: FIFSRegistrar;
 let registry: ENSRegistry;
 let jbProjects: TestJBProjects;
 let jbProjectHandles: JBProjectHandles;
+let jbOperatorStore: TestJBOperatorStore;
 
 async function setupWallets() {
   const [ensOwner, project1Owner, project2Owner] = await ethers.getSigners();
@@ -65,14 +66,16 @@ async function deployTestJBProjects() {
 
 async function deployJBProjectHandles(
   jbProjectsAddress: string,
-  ensResolverAddress: string
+  ensResolverAddress: string,
+  jbOperatorStoreAddress: string,
 ) {
   const JBProjectHandlesFactory = await ethers.getContractFactory(
     "JBProjectHandles"
   );
   jbProjectHandles = (await JBProjectHandlesFactory.deploy(
     jbProjectsAddress,
-    ensResolverAddress
+    ensResolverAddress,
+    jbOperatorStoreAddress
   )) as JBProjectHandles;
 }
 
@@ -118,7 +121,7 @@ before(async () => {
 
 describe("JBProjectHandles", function () {
   it("Should deploy", async function () {
-    await deployJBProjectHandles(jbProjects.address, resolver.address);
+    await deployJBProjectHandles(jbProjects.address, resolver.address, jbOperatorStore.address);
 
     expect(await jbProjectHandles.ensTextResolver()).to.equal(resolver.address);
     expect(await jbProjectHandles.jbProjects()).to.equal(jbProjects.address);

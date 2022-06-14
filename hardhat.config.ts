@@ -38,11 +38,11 @@ module.exports = {
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/" + infuraId,
-      accounts: [deployerPk()],
+      mnemonic: deployerPk(),
     },
     mainnet: {
       url: "https://mainnet.infura.io/v3/" + infuraId,
-      accounts: [deployerPk()],
+      mnemonic: deployerPk(),
       gasPrice: 60e9,
     },
   },
@@ -52,7 +52,7 @@ module.exports = {
     },
   },
   solidity: {
-    version: "0.8.14",
+    version: "0.8.6",
     settings: {
       optimizer: {
         enabled: true,

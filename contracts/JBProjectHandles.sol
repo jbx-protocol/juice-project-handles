@@ -1,204 +1,247 @@
 // SPDX-License-Identifier: MIT
+pragma solidity 0.8.6;
 
-/// @title JBProjectHandles
-/// @author peri
-/// @notice Manages reverse records that point from JB project IDs to ENS nodes. If the reverse record of a project ID is pointed to an ENS node with a TXT record matching the ID of that project, then the ENS node will be considered the "handle" for that project.
+import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
+import '@openzeppelin/contracts/interfaces/IERC721.sol';
+import '@openzeppelin/contracts/utils/Strings.sol';
+import '@jbx-protocol/contracts-v2/contracts/abstract/JBOperatable.sol';
+import './interfaces/IJBProjectHandles.sol';
+import './libraries/JBHandlesOperations.sol';
 
-pragma solidity 0.8.14;
+/** 
+  @title 
+  JBProjectHandles
 
-import "@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol";
-import "@openzeppelin/contracts/interfaces/IERC721.sol";
-import "./interfaces/IJBProjectHandles.sol";
+  @author 
+  peri, jango, drgorilla
 
-error NotJuiceboxProjectOwner(uint256 projectId, address owner);
+  @notice 
+  Manages reverse records that point from JB project IDs to ENS nodes. If the reverse record of a project ID is pointed to an ENS node with a TXT record matching the ID of that project, then the ENS node will be considered the "handle" for that project.
 
-contract JBProjectHandles is IJBProjectHandles {
-    /* -------------------------------------------------------------------------- */
-    /* ------------------------------- MODIFIERS -------------------------------- */
-    /* -------------------------------------------------------------------------- */
+  @dev
+  Adheres to -
+  IJBProjectHandles: General interface for the methods in this contract that interact with the blockchain's state according to the protocol's rules.
 
-    /// @notice Require that caller owns this Juicebox project
-    /// @param projectId id of Juicebox project
-    modifier onlyProjectOwner(uint256 projectId) {
-        if (msg.sender != IERC721(jbProjects).ownerOf(projectId)) {
-            revert NotJuiceboxProjectOwner(projectId, msg.sender);
-        }
-        _;
+  @dev
+  Inherits from -
+  JBOperatable: Several functions in this contract can only be accessed by a project owner, or an address that has been preconfifigured to be an operator of the project.
+*/
+contract JBProjectHandles is IJBProjectHandles, JBOperatable {
+  //*********************************************************************//
+  // --------------------------- custom errors ------------------------- //
+  //*********************************************************************//
+  error EMPTY_NAME_PART();
+  error NO_PARTS();
+
+  //*********************************************************************//
+  // --------------------- internal stored properties ------------------ //
+  //*********************************************************************//
+
+  /** 
+    @notice
+    Mapping of project ID to an array of strings that make up an ENS name and its subdomains.
+
+    @dev
+    ["jbx", "dao", "foo"] represents foo.dao.jbx.eth.
+
+    _projectId The ID of the project to get an ENS name for.
+  */
+  mapping(uint256 => string[]) internal _ensNamePartsOf;
+
+  //*********************************************************************//
+  // --------------- public immutable stored properties ---------------- //
+  //*********************************************************************//
+
+  /** 
+    @notice
+    The key of the ENS text record.
+  */
+  string public constant override TEXT_KEY = 'juicebox_project_id';
+
+  //*********************************************************************//
+  // --------------------- public stored properties -------------------- //
+  //*********************************************************************//
+
+  /** 
+    @notice
+    A contract which mints ERC-721's that represent project ownership and transfers.
+  */
+  IJBProjects public immutable override projects;
+
+  /** 
+    @notice
+    The ENS text resolver contract address.
+  */
+  ITextResolver public immutable override textResolver;
+
+  //*********************************************************************//
+  // ------------------------- external views -------------------------- //
+  //*********************************************************************//
+
+  /** 
+    @notice 
+    Returns the handle for a project.
+
+    @dev 
+    Requires a TXT record for the `TEXT_KEY` that matches the `_projectId`.
+
+    @param _projectId The ID of the project to get the handle of.
+
+    @return The project's handle.
+  */
+  function handleOf(uint256 _projectId) external view override returns (string memory) {
+    // Get a reference to the project's ENS name parts.
+    string[] memory _ensNameParts = _ensNamePartsOf[_projectId];
+
+    // Return empty string if ENS isn't set.
+    if (_ensNameParts.length == 0) return '';
+
+    // Find the projectId that the text record of the ENS name is mapped to.
+    string memory textRecordProjectId = textResolver.text(_namehash(_ensNameParts), TEXT_KEY);
+
+    // Return empty string if text record from ENS name doesn't match projectId.
+    if (keccak256(bytes(textRecordProjectId)) != keccak256(bytes(Strings.toString(_projectId))))
+      return '';
+
+    // Format the handle from the name parts.
+    return _formatHandle(_ensNameParts);
+  }
+
+  /** 
+    @notice 
+    The parts of the stored ENS name of a project.
+
+    @param _projectId The ID of the project to get the ENS name of.
+
+    @return The parts of the ENS name parts of a project.
+  */
+  function ensNamePartsOf(uint256 _projectId) external view override returns (string[] memory) {
+    return _ensNamePartsOf[_projectId];
+  }
+
+  //*********************************************************************//
+  // ---------------------------- constructor -------------------------- //
+  //*********************************************************************//
+
+  /** 
+    @param _projects A contract which mints ERC-721's that represent project ownership and transfers.
+    @param _operatorStore A contract storing operator assignments.
+    @param _textResolver The ENS text resolver contract address.
+  */
+  constructor(
+    IJBProjects _projects,
+    IJBOperatorStore _operatorStore,
+    ITextResolver _textResolver
+  ) JBOperatable(_operatorStore) {
+    projects = _projects;
+    textResolver = _textResolver;
+  }
+
+  //*********************************************************************//
+  // --------------------- external transactions ----------------------- //
+  //*********************************************************************//
+
+  /** 
+    @notice 
+    Associate an ENS name with a project.
+
+    @dev
+    ["jbx", "dao", "foo"] represents foo.dao.jbx.eth.
+
+    @dev
+    The caller must be the project's owner, or a operator.
+
+    @param _projectId The ID of the project to set an ENS handle for.
+    @param _parts The parts of the ENS domain to use as the project handle, excluding the trailing .eth.
+  */
+  function setEnsNamePartsFor(uint256 _projectId, string[] memory _parts)
+    external
+    override
+    requirePermission(
+      projects.ownerOf(_projectId),
+      _projectId,
+      JBHandlesOperations.SET_ENS_NAME_FOR
+    )
+  {
+    // Get a reference to the number of parts are in the ENS name.
+    uint256 _partsLength = _parts.length;
+
+    // Make sure there are ens name parts.
+    if (_parts.length == 0) revert NO_PARTS();
+
+    // Make sure no provided parts are empty.
+    for (uint256 _i = 0; _i < _partsLength; ) {
+      if (bytes(_parts[_i]).length == 0) revert EMPTY_NAME_PART();
+      unchecked {
+        ++_i;
+      }
     }
 
-    /* -------------------------------------------------------------------------- */
-    /* ------------------------------ CONSTRUCTOR ------------------------------- */
-    /* -------------------------------------------------------------------------- */
+    // Store the parts.
+    _ensNamePartsOf[_projectId] = _parts;
 
-    constructor(address _jbProjects, address _ensTextResolver) {
-        jbProjects = _jbProjects;
-        ensTextResolver = _ensTextResolver;
+    emit SetEnsNameParts(_projectId, _formatHandle(_parts), _parts, msg.sender);
+  }
+
+  //*********************************************************************//
+  // ------------------------ internal functions ----------------------- //
+  //*********************************************************************//
+
+  /** 
+    @notice 
+    Formats ENS name parts into a handle.
+
+    @param _ensNameParts The ENS name to format into a handle.
+
+    @return _handle The formatted ENS handle.
+  */
+  function _formatHandle(string[] memory _ensNameParts)
+    internal
+    pure
+    returns (string memory _handle)
+  {
+    // Get a reference to the number of parts are in the ENS name.
+    uint256 _partsLength = _ensNameParts.length;
+
+    // Concatenate each name part.
+    for (uint256 _i = 1; _i <= _partsLength; ) {
+      _handle = string(abi.encodePacked(_handle, _ensNameParts[_partsLength - _i]));
+
+      // Add a dot if this part isn't the last.
+      if (_i < _partsLength) _handle = string(abi.encodePacked(_handle, '.'));
+
+      unchecked {
+        ++_i;
+      }
     }
+  }
 
-    /* -------------------------------------------------------------------------- */
-    /* ------------------------------- VARIABLES -------------------------------- */
-    /* -------------------------------------------------------------------------- */
+  /** 
+    @notice 
+    Returns a namehash for an ENS name.
 
-    /// Key of ENS text record
-    string public constant TEXT_KEY = "juicebox";
+    @dev 
+    See https://eips.ethereum.org/EIPS/eip-137.
 
-    /// JB Projects contract address
-    address public immutable jbProjects;
+    @param _ensNameParts The parts of an ENS name to hash.
 
-    /// ENS text resolver contract address
-    address public immutable ensTextResolver;
+    @return namehash The namehash for an ensName.
+  */
+  function _namehash(string[] memory _ensNameParts) internal pure returns (bytes32 namehash) {
+    // Hash the trailing "eth" suffix.
+    namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked('eth'))));
 
-    /// Mapping of project ID to ENS name
-    mapping(uint256 => ENSName) ensNames;
+    // Get a reference to the number of parts are in the ENS name.
+    uint256 _nameLength = _ensNameParts.length;
 
-    /* -------------------------------------------------------------------------- */
-    /* --------------------------- EXTERNAL FUNCTIONS --------------------------- */
-    /* -------------------------------------------------------------------------- */
-
-    /// @notice Set reverse record for Juicebox project
-    /// @dev Requires sender to own Juicebox project
-    /// @param projectId ID of Juicebox project
-    /// @param name ENS domain to use as project handle, excluding .eth.
-    function setEnsNameFor(uint256 projectId, string calldata name) external {
-        _setEnsNameFor(projectId, ENSName({name: name, subdomain: ""}));
+    // Hash each part.
+    for (uint256 _i = 0; _i < _nameLength; ) {
+      namehash = keccak256(
+        abi.encodePacked(namehash, keccak256(abi.encodePacked(_ensNameParts[_i])))
+      );
+      unchecked {
+        ++_i;
+      }
     }
-
-    /// @notice Set reverse record for Juicebox project
-    /// @dev Requires sender to own Juicebox project
-    /// @param projectId ID of Juicebox project
-    /// @param name ENS name to use as project handle, excluding .eth.
-    /// @param subdomain Include subdomain in project handle.
-    function setEnsNameWithSubdomainFor(
-        uint256 projectId,
-        string calldata name,
-        string calldata subdomain
-    ) external {
-        _setEnsNameFor(projectId, ENSName({name: name, subdomain: subdomain}));
-    }
-
-    /// @notice Returns ensName of Juicebox project
-    /// @param projectId id of Juicebox project
-    /// @return ensName for project
-    function ensNameOf(uint256 projectId)
-        public
-        view
-        returns (ENSName memory ensName)
-    {
-        ensName = ensNames[projectId];
-    }
-
-    /// @notice Returns ensName for Juicebox project
-    /// @dev Requires ensName to have TXT record matching projectId
-    /// @param projectId id of Juicebox project
-    /// @return ensName for project
-    function handleOf(uint256 projectId) public view returns (string memory) {
-        ENSName memory ensName = ensNameOf(projectId);
-
-        // Return empty string if no ENS name set
-        if (isEmptyString(ensName.name) && isEmptyString(ensName.subdomain)) {
-            return "";
-        }
-
-        string memory reverseId = ITextResolver(ensTextResolver).text(
-            namehash(ensName),
-            TEXT_KEY
-        );
-
-        // Return empty string if reverseId from ENS name doesn't match projectId
-        if (stringToUint(reverseId) != projectId) {
-            return "";
-        }
-
-        return formatEnsName(ensName);
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /* --------------------------- INTERNAL FUNCTIONS --------------------------- */
-    /* -------------------------------------------------------------------------- */
-
-    /// @notice Set reverse record for Juicebox project
-    /// @dev Requires sender to own Juicebox project
-    /// @param projectId ID of Juicebox project
-    /// @param ensName ENS name to use as project handle, excluding .eth.
-    function _setEnsNameFor(uint256 projectId, ENSName memory ensName)
-        internal
-        onlyProjectOwner(projectId)
-    {
-        ensNames[projectId] = ensName;
-
-        emit SetEnsName(projectId, formatEnsName(ensName));
-    }
-
-    /// @notice Converts string to uint256
-    /// @param numstring number string to be converted
-    /// @return result uint conversion from string
-    function stringToUint(string memory numstring)
-        internal
-        pure
-        returns (uint256 result)
-    {
-        result = 0;
-        bytes memory stringBytes = bytes(numstring);
-        for (uint256 i = 0; i < stringBytes.length; i++) {
-            uint256 exp = stringBytes.length - i;
-            bytes1 ival = stringBytes[i];
-            uint8 uval = uint8(ival);
-            uint256 jval = uval - uint256(0x30);
-
-            result += (uint256(jval) * (10**(exp - 1)));
-        }
-    }
-
-    /// @notice Returns namehash for ENS name
-    /// @dev https://eips.ethereum.org/EIPS/eip-137
-    /// @param ensName ENS name to hash
-    /// @return _namehash namehash for ensName
-    function namehash(ENSName memory ensName)
-        internal
-        pure
-        returns (bytes32 _namehash)
-    {
-        _namehash = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        _namehash = keccak256(
-            abi.encodePacked(_namehash, keccak256(abi.encodePacked("eth")))
-        );
-        _namehash = keccak256(
-            abi.encodePacked(
-                _namehash,
-                keccak256(abi.encodePacked(ensName.name))
-            )
-        );
-        if (!isEmptyString(ensName.subdomain)) {
-            _namehash = keccak256(
-                abi.encodePacked(
-                    _namehash,
-                    keccak256(abi.encodePacked(ensName.subdomain))
-                )
-            );
-        }
-    }
-
-    /// @notice Formats ENS struct into string
-    /// @param ensName ENS name to format
-    /// @return _ensName formatted ENS name
-    function formatEnsName(ENSName memory ensName)
-        internal
-        pure
-        returns (string memory _ensName)
-    {
-        if (!isEmptyString(ensName.subdomain)) {
-            _ensName = string(
-                abi.encodePacked(ensName.subdomain, ".", ensName.name)
-            );
-        } else {
-            _ensName = ensName.name;
-        }
-    }
-
-    /// @notice Returns true if string is empty
-    /// @param str String to check if empty
-    /// @return true if string is empty
-    function isEmptyString(string memory str) internal pure returns (bool) {
-        return bytes(str).length == 0;
-    }
+  }
 }

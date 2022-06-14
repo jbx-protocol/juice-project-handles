@@ -8,3 +8,5 @@ deployments/localhost
 typechain-types
 build
 .DS_Store 
+out
+cache
