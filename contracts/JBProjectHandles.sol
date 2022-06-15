@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/interfaces/IERC721.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@jbx-protocol/contracts-v2/contracts/abstract/JBOperatable.sol';
 import './interfaces/IJBProjectHandles.sol';
-import './libraries/JBHandlesOperations.sol';
+import './libraries/JBOperations2.sol';
 
 /** 
   @title 
@@ -149,7 +149,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     ["jbx", "dao", "foo"] represents foo.dao.jbx.eth.
 
     @dev
-    The caller must be the project's owner, or a operator.
+    Only a project's owner or a designated operator can set its ENS name parts.
 
     @param _projectId The ID of the project to set an ENS handle for.
     @param _parts The parts of the ENS domain to use as the project handle, excluding the trailing .eth.
@@ -157,11 +157,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   function setEnsNamePartsFor(uint256 _projectId, string[] memory _parts)
     external
     override
-    requirePermission(
-      projects.ownerOf(_projectId),
-      _projectId,
-      JBHandlesOperations.SET_ENS_NAME_FOR
-    )
+    requirePermission(projects.ownerOf(_projectId), _projectId, JBOperations2.SET_ENS_NAME_FOR)
   {
     // Get a reference to the number of parts are in the ENS name.
     uint256 _partsLength = _parts.length;
@@ -191,7 +187,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     @notice 
     Formats ENS name parts into a handle.
 
-    @param _ensNameParts The ENS name to format into a handle.
+    @param _ensNameParts The ENS name parts to format into a handle.
 
     @return _handle The formatted ENS handle.
   */
@@ -225,7 +221,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     @param _ensNameParts The parts of an ENS name to hash.
 
-    @return namehash The namehash for an ensName.
+    @return namehash The namehash for an ENS name parts.
   */
   function _namehash(string[] memory _ensNameParts) internal pure returns (bytes32 namehash) {
     // Hash the trailing "eth" suffix.

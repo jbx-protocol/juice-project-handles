@@ -9,7 +9,7 @@ import '@jbx-protocol/contracts-v2/contracts/JBOperatorStore.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 
 import '@contracts/JBProjectHandles.sol';
-import '@contracts/libraries/JBHandlesOperations.sol';
+import '@contracts/libraries/JBOperations2.sol';
 
 contract ContractTest is Test {
   // For testing the event emitted
@@ -39,7 +39,9 @@ contract ContractTest is Test {
   // ------------------------ SetEnsNamePartsFor(..) ------------------- //
   //*********************************************************************//
 
-  function testSetEnsNamePartsFor_passIfCallerIsProjectOwnerAndOnlyName(string calldata _name) public {
+  function testSetEnsNamePartsFor_passIfCallerIsProjectOwnerAndOnlyName(string calldata _name)
+    public
+  {
     vm.assume(bytes(_name).length != 0);
 
     uint256 _projectId = jbProjects.createFor(
@@ -61,7 +63,10 @@ contract ContractTest is Test {
     assertEq(projectHandle.ensNamePartsOf(_projectId), _nameParts);
   }
 
-  function testSetEnsNameFor_passIfAuthorizedCallerAndOnlyName(address caller, string calldata _name) public {
+  function testSetEnsNameFor_passIfAuthorizedCallerAndOnlyName(
+    address caller,
+    string calldata _name
+  ) public {
     vm.assume(bytes(_name).length != 0);
 
     uint256 _projectId = jbProjects.createFor(
@@ -71,7 +76,7 @@ contract ContractTest is Test {
 
     // Give the authorisation to set ENS to caller
     uint256[] memory permissionIndexes = new uint256[](1);
-    permissionIndexes[0] = JBHandlesOperations.SET_ENS_NAME_FOR;
+    permissionIndexes[0] = JBOperations2.SET_ENS_NAME_FOR;
 
     vm.prank(projectOwner);
     jbOperatorStore.setOperator(
@@ -97,7 +102,9 @@ contract ContractTest is Test {
     string memory _subdomain,
     string memory _subsubdomain
   ) public {
-    vm.assume(bytes(_name).length > 0 && bytes(_subdomain).length > 0  && bytes(_subsubdomain).length > 0);
+    vm.assume(
+      bytes(_name).length > 0 && bytes(_subdomain).length > 0 && bytes(_subsubdomain).length > 0
+    );
 
     uint256 _projectId = jbProjects.createFor(
       projectOwner,
@@ -128,9 +135,7 @@ contract ContractTest is Test {
     address caller,
     string calldata _name
   ) public {
-    vm.assume(
-      authorizationIndex != JBHandlesOperations.SET_ENS_NAME_FOR && authorizationIndex < 255
-    );
+    vm.assume(authorizationIndex != JBOperations2.SET_ENS_NAME_FOR && authorizationIndex < 255);
     vm.assume(caller != projectOwner);
     uint256 _projectId = jbProjects.createFor(
       projectOwner,
@@ -168,9 +173,7 @@ contract ContractTest is Test {
     string memory _subsubdomain
   ) public {
     vm.assume(
-      bytes(_name).length == 0
-      || bytes(_subdomain).length == 0
-      || bytes(_subsubdomain).length == 0
+      bytes(_name).length == 0 || bytes(_subdomain).length == 0 || bytes(_subsubdomain).length == 0
     );
 
     uint256 _projectId = jbProjects.createFor(
@@ -238,11 +241,7 @@ contract ContractTest is Test {
 
     vm.mockCall(
       address(ensTextResolver),
-      abi.encodeWithSelector(
-        ITextResolver.text.selector,
-        _namehash(_nameParts),
-        KEY
-      ),
+      abi.encodeWithSelector(ITextResolver.text.selector, _namehash(_nameParts), KEY),
       abi.encode(reverseId)
     );
 
@@ -254,7 +253,9 @@ contract ContractTest is Test {
     string calldata _subdomain,
     string calldata _subsubdomain
   ) public {
-    vm.assume(bytes(_name).length > 0 && bytes(_subdomain).length > 0 && bytes(_subsubdomain).length > 0);
+    vm.assume(
+      bytes(_name).length > 0 && bytes(_subdomain).length > 0 && bytes(_subsubdomain).length > 0
+    );
 
     uint256 _projectId = jbProjects.createFor(
       projectOwner,
@@ -274,15 +275,14 @@ contract ContractTest is Test {
 
     vm.mockCall(
       address(ensTextResolver),
-      abi.encodeWithSelector(
-        ITextResolver.text.selector,
-        _namehash(_nameParts),
-        KEY
-      ),
+      abi.encodeWithSelector(ITextResolver.text.selector, _namehash(_nameParts), KEY),
       abi.encode(Strings.toString(_projectId))
     );
 
-    assertEq(projectHandle.handleOf(_projectId), string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain)));
+    assertEq(
+      projectHandle.handleOf(_projectId),
+      string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain))
+    );
   }
 
   //*********************************************************************//
@@ -297,7 +297,6 @@ contract ContractTest is Test {
   }
 
   function _namehash(string[] memory _ensName) internal pure returns (bytes32 namehash) {
-    namehash = 0x0000000000000000000000000000000000000000000000000000000000000000;
     namehash = keccak256(abi.encodePacked(namehash, keccak256(abi.encodePacked('eth'))));
 
     // Get a reference to the number of parts are in the ENS name.
