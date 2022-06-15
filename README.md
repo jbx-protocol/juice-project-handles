@@ -38,18 +38,20 @@ foundryup
 
 # Deploy & verify
 
-Using the solidity script and a private key, --sender needs to be the address controlled by this key.
-To use a seed phrase, use --mnemonic-path and --mnemonic-index
-To simulate the deployment, remove the --broadcast (same if verification fails and you want to give a second try without redeploying)
+Using the solidity script after configuring the .env accordingly (the sender address must be corresponding to the private key)
 
 See the [Foundry Book for available options](https://book.getfoundry.sh/reference/forge/forge-create.html)
 
 ## Rinkeby
 
-forge script DeployRinkeby --rpc-url $RINKEBY_RPC_PROVIDER_URL --broadcast --interactives 1 --sender $SENDER_ADDRESS --verify --etherscan-api-key $ETHERSCAN_API_KEY
+```bash
+yarn deploy-rinkeby
+```
 
 ## Mainnet
 
-forge script DeployMainnet --rpc-url $RINKEBY_RPC_PROVIDER_URL --broadcast --interactives 1 --sender $SENDER_ADDRESS --verify --etherscan-api-key $ETHERSCAN_API_KEY
+```bash
+yarn deploy-mainnet
+```
 
 The deployments are stored in ./broadcast
