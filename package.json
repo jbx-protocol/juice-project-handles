@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/jbx-protocol/juice-project-handles"
   },
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "devDependencies": {
     "@ensdomains/ens-contracts": "^0.0.11",
@@ -51,8 +51,8 @@
     "clean": "rimraf ./cache && rimraf ./artifacts",
     "compile": "yarn clean && hardhat compile",
     "pretty": "prettier --write \"./**/*.{js,jsx,json,sol}\"",
-    "deploy-rinkeby": "source .env && forge script DeployRinkeby --rpc-url $RINKEBY_RPC_PROVIDER_URL --broadcast --private-key $PRIVATE_KEY --sender $SENDER_ADDRESS --verify --etherscan-api-key $ETHERSCAN_API_KEY",
-    "deploy-mainnet": "source .env && forge script DeployMainnet --rpc-url $MAINNET_RPC_PROVIDER_URL --broadcast --private-key $PRIVATE_KEY --sender $SENDER_ADDRESS --verify --etherscan-api-key $ETHERSCAN_API_KEY"
+    "deploy-rinkeby": "source .env && forge script DeployRinkeby --rpc-url $RINKEBY_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS",
+    "deploy-mainnet": "source .env && forge script DeployMainnet --rpc-url $MAINNET_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS"
   },
   "dependencies": {}
 }
