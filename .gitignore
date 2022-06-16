@@ -7,11 +7,10 @@ deployments/localhost
 typechain-types
 build
 .DS_Store 
-out
 cache
 
 # Keep related abi
-out/*
+out/*/*
 !out/JBProjectHandles.sol/*
 
 # Keep the latest deployment only
