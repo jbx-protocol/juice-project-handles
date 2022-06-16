@@ -12,7 +12,7 @@ import '../JBProjectHandles.sol';
 
 contract DeployRinkeby is Test {
   IJBOperatorStore _operatorStore = IJBOperatorStore(0xEDB2db4b82A4D4956C3B4aA474F7ddf3Ac73c5AB);
-  IJBProjects _projects = IJBProjects(0xD8B4359143eda5B2d763E127Ed27c77addBc47d3);
+  IJBProjects _projects = IJBProjects(0x2d8e361f8F1B5daF33fDb2C99971b33503E60EEE);
   ITextResolver _ENSResolver = ITextResolver(0xf6305c19e814d2a75429Fd637d01F7ee0E77d615);
 
   JBProjectHandles jbProjectHandles;
