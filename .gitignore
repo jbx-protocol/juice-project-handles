@@ -11,8 +11,8 @@ out
 cache
 
 # Keep related abi
-out/
-!out/JBProjectHandles.sol/
+out/*
+!out/JBProjectHandles.sol/*
 
 # Keep the latest deployment only
 broadcast/*/*
