@@ -1,5 +1,5 @@
 node_modules
-artifacts
+broadcast
 cache
-coverage*
-gasReporterOutput.json
+out
+deployments
