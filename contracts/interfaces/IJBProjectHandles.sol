@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjects.sol';
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
+import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjects.sol';
 
 interface IJBProjectHandles {
   event SetEnsNameParts(

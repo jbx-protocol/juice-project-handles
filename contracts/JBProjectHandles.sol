@@ -2,9 +2,9 @@
 pragma solidity 0.8.6;
 
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
+import '@jbx-protocol/contracts-v2/contracts/abstract/JBOperatable.sol';
 import '@openzeppelin/contracts/interfaces/IERC721.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
-import '@jbx-protocol/contracts-v2/contracts/abstract/JBOperatable.sol';
 import './interfaces/IJBProjectHandles.sol';
 import './libraries/JBOperations2.sol';
 
@@ -49,7 +49,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   mapping(uint256 => string[]) internal _ensNamePartsOf;
 
   //*********************************************************************//
-  // --------------- public immutable stored properties ---------------- //
+  // ---------------- public constant stored properties ---------------- //
   //*********************************************************************//
 
   /** 
@@ -59,7 +59,7 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   string public constant override TEXT_KEY = 'juicebox_project_id';
 
   //*********************************************************************//
-  // --------------------- public stored properties -------------------- //
+  // --------------- public immutable stored properties ---------------- //
   //*********************************************************************//
 
   /** 
