@@ -1,6 +1,5 @@
 .env
 node_modules
-artifacts
 cache
 mnemonic.txt
 pk.txt
@@ -10,3 +9,11 @@ build
 .DS_Store 
 out
 cache
+
+# Keep related abi
+out/
+!out/JBProjectHandles.sol/
+
+# Keep the latest deployment only
+broadcast/*/*
+!broadcast/*/run-latest.json
