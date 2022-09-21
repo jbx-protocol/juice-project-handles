@@ -42,10 +42,10 @@ Using the solidity script after configuring the .env accordingly (the sender add
 
 See the [Foundry Book for available options](https://book.getfoundry.sh/reference/forge/forge-create.html)
 
-## Rinkeby
+## Goerli
 
 ```bash
-yarn deploy-rinkeby
+yarn deploy-goerli
 ```
 
 ## Mainnet
