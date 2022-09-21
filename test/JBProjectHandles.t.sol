@@ -4,8 +4,8 @@ pragma solidity ^0.8.6;
 import 'forge-std/Test.sol';
 
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
-import '@jbx-protocol/contracts-v2/contracts/JBProjects.sol';
-import '@jbx-protocol/contracts-v2/contracts/JBOperatorStore.sol';
+import '@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol';
+import '@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 
 import '@contracts/JBProjectHandles.sol';

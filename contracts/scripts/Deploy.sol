@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity 0.8.6;
+pragma solidity ^0.8.16;
 
 import 'forge-std/Test.sol';
 
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
-import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBOperatorStore.sol';
-import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjects.sol';
+import '@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBOperatorStore.sol';
+import '@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol';
 
 import '../JBProjectHandles.sol';
 
-contract DeployRinkeby is Test {
-  IJBOperatorStore _operatorStore = IJBOperatorStore(0xEDB2db4b82A4D4956C3B4aA474F7ddf3Ac73c5AB);
-  IJBProjects _projects = IJBProjects(0x2d8e361f8F1B5daF33fDb2C99971b33503E60EEE);
-  ITextResolver _ENSResolver = ITextResolver(0xf6305c19e814d2a75429Fd637d01F7ee0E77d615);
+contract DeployGoerli is Test {
+  IJBOperatorStore _operatorStore = IJBOperatorStore(0x99dB6b517683237dE9C494bbd17861f3608F3585);
+  IJBProjects _projects = IJBProjects(0x21263a042aFE4bAE34F08Bb318056C181bD96D3b);
+  ITextResolver _ENSResolver = ITextResolver(0xfF77b96d6bafCec0D684bB528b22e0Ab09C70663);
 
   JBProjectHandles jbProjectHandles;
 

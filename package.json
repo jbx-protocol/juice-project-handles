@@ -12,7 +12,6 @@
   "devDependencies": {
     "@ensdomains/ens-contracts": "^0.0.11",
     "@ensdomains/eth-ens-namehash": "^2.0.15",
-    "@jbx-protocol/contracts-v2": "^8.0.0",
     "@openzeppelin/contracts": "4.5.0",
     "prettier": "^2.4.0",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
@@ -21,7 +20,10 @@
   },
   "scripts": {
     "pretty": "prettier --write \"./**/*.{js,jsx,json,sol}\"",
-    "deploy-rinkeby": "source .env && forge script DeployRinkeby --rpc-url $RINKEBY_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS",
+    "deploy-goerli": "source .env && forge script DeployGoerli --rpc-url $GOERLI_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS",
     "deploy-mainnet": "source .env && forge script DeployMainnet --rpc-url $MAINNET_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS"
+  },
+  "dependencies": {
+    "@jbx-protocol/juice-contracts-v3": "^2.0.0"
   }
 }
