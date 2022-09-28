@@ -1,25 +1,30 @@
 Arguments: 
-  /Users/joao/.nvm/versions/node/v16.0.0/bin/node /usr/local/Cellar/yarn/1.22.10/libexec/bin/yarn.js deploy-rinkeby
+  /usr/local/bin/node /opt/homebrew/Cellar/yarn/1.22.19/libexec/bin/yarn.js add @jbx-protocol/contracts-v3
 
 PATH: 
-  /Library/Frameworks/Python.framework/Versions/3.8/bin:/Users/joao/.google-cloud-sdk/bin:/Users/joao/.flutter_build/bin:/Users/joao/.yarn/bin:/Users/joao/.config/yarn/global/node_modules/.bin:/Users/joao/.nvm/versions/node/v16.0.0/bin:/Developer/adt-bundle/sdk/tools:/Developer/adt-bundle/sdk/platform-tools:/usr/local/bin:/Library/Frameworks/Python.framework/Versions/3.8/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/joao/.foundry/bin
+  /Users/drgorilla/.pyenv/shims:/Users/drgorilla/.foundry/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Users/drgorilla/.foundry/bin:/opt/anaconda3/bin:/opt/anaconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/drgorilla/.cargo/bin:/Users/drgorilla/.local/bin:/Users/drgorilla/.protostar/dist/protostar:/Users/drgorilla/.starklings/dist/starklings:/Users/drgorilla/.local/bin:/Users/drgorilla/.local/bin:/Users/drgorilla/.protostar/dist/protostar:/Users/drgorilla/.starklings/dist/starklings
 
 Yarn version: 
-  1.22.10
+  1.22.19
 
 Node version: 
-  16.0.0
+  16.13.1
 
 Platform: 
-  darwin x64
+  darwin arm64
 
 Trace: 
-  SyntaxError: /Users/joao/jb/juice-project-handles/package.json: Unexpected token < in JSON at position 245
-      at JSON.parse (<anonymous>)
-      at /usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:1625:59
-      at Generator.next (<anonymous>)
-      at step (/usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:310:30)
-      at /usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:321:13
+  Error: https://registry.yarnpkg.com/@jbx-protocol%2fcontracts-v3: Not found
+      at Request.params.callback [as _callback] (/opt/homebrew/Cellar/yarn/1.22.19/libexec/lib/cli.js:66145:18)
+      at Request.self.callback (/opt/homebrew/Cellar/yarn/1.22.19/libexec/lib/cli.js:140890:22)
+      at Request.emit (node:events:390:28)
+      at Request.<anonymous> (/opt/homebrew/Cellar/yarn/1.22.19/libexec/lib/cli.js:141862:10)
+      at Request.emit (node:events:390:28)
+      at IncomingMessage.<anonymous> (/opt/homebrew/Cellar/yarn/1.22.19/libexec/lib/cli.js:141784:12)
+      at Object.onceWrapper (node:events:509:28)
+      at IncomingMessage.emit (node:events:402:35)
+      at endReadableNT (node:internal/streams/readable:1343:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
 
 npm manifest: 
   {
@@ -31,11 +36,7 @@ npm manifest:
       "type": "git",
       "url": "https://github.com/jbx-protocol/juice-project-handles"
     },
-  <<<<<<< Updated upstream
-    "version": "1.0.0",
-  =======
     "version": "2.0.0",
-  >>>>>>> Stashed changes
     "license": "MIT",
     "devDependencies": {
       "@ensdomains/ens-contracts": "^0.0.11",
