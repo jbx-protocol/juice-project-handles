@@ -12,7 +12,7 @@ import '../JBProjectHandles.sol';
 contract DeployGoerli is Test {
   IJBOperatorStore _operatorStore = IJBOperatorStore(0x99dB6b517683237dE9C494bbd17861f3608F3585);
   IJBProjects _projects = IJBProjects(0x21263a042aFE4bAE34F08Bb318056C181bD96D3b);
-  ITextResolver _ENSResolver = ITextResolver(0xfF77b96d6bafCec0D684bB528b22e0Ab09C70663);
+  ITextResolver _ENSResolver = ITextResolver(0xE264d5bb84bA3b8061ADC38D3D76e6674aB91852);
 
   JBProjectHandles jbProjectHandles;
 

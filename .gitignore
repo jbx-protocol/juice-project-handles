@@ -5,11 +5,3 @@ mnemonic.txt
 pk.txt
 .DS_Store 
 out
-
-# Keep related abi
-out/*
-!out/JBProjectHandles.sol/*
-
-# Keep the latest deployment only
-broadcast/*/*
-!broadcast/*/run-latest.json
