@@ -1,0 +1,186 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "SET_ENS_NAME_FOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x6087610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c806333c658f1146038575b600080fd5b603f601381565b60405190815260200160405180910390f3fea2646970667358221220145b3af193c5d5e63850843110fb7530b7d26223cfbba3927a920404b63e36c264736f6c63430008100033",
+    "sourceMap": "58:74:2:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;58:74:2;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x730000000000000000000000000000000000000000301460806040526004361060335760003560e01c806333c658f1146038575b600080fd5b603f601381565b60405190815260200160405180910390f3fea2646970667358221220145b3af193c5d5e63850843110fb7530b7d26223cfbba3927a920404b63e36c264736f6c63430008100033",
+    "sourceMap": "58:74:2:-:0;;;;;;;;;;;;;;;;;;;;;;;;84:45;;127:2;84:45;;;;;168:25:43;;;156:2;141:18;84:45:2;;;;;;",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "SET_ENS_NAME_FOR()": "33c658f1"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"SET_ENS_NAME_FOR\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/libraries/JBOperations2.sol\":\"JBOperations2\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@contracts/=contracts/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@jbx-protocol/=node_modules/@jbx-protocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\"]},\"sources\":{\"contracts/libraries/JBOperations2.sol\":{\"keccak256\":\"0x6b770b1f4e86a20c22f3f98bcd905c8004995156106a5a5c5af6020344738b29\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ee28ebe94a395193df475997da33ada44ab540429d76a0889b384deafb35e6c1\",\"dweb:/ipfs/QmNUNEaCo29kfEDHsStXyViyRhs3C6aQtMPNi3wgyGcjHg\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.16+commit.07a7930e"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "SET_ENS_NAME_FOR",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@contracts/=contracts/",
+        ":@ensdomains/=node_modules/@ensdomains/",
+        ":@jbx-protocol/=node_modules/@jbx-protocol/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "contracts/libraries/JBOperations2.sol": "JBOperations2"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "contracts/libraries/JBOperations2.sol": {
+        "keccak256": "0x6b770b1f4e86a20c22f3f98bcd905c8004995156106a5a5c5af6020344738b29",
+        "urls": [
+          "bzz-raw://ee28ebe94a395193df475997da33ada44ab540429d76a0889b384deafb35e6c1",
+          "dweb:/ipfs/QmNUNEaCo29kfEDHsStXyViyRhs3C6aQtMPNi3wgyGcjHg"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "contracts/libraries/JBOperations2.sol",
+    "id": 393,
+    "exportedSymbols": {
+      "JBOperations2": [
+        392
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:101:2",
+    "nodes": [
+      {
+        "id": 388,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:2",
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".16"
+        ]
+      },
+      {
+        "id": 392,
+        "nodeType": "ContractDefinition",
+        "src": "58:74:2",
+        "nodes": [
+          {
+            "id": 391,
+            "nodeType": "VariableDeclaration",
+            "src": "84:45:2",
+            "constant": true,
+            "functionSelector": "33c658f1",
+            "mutability": "constant",
+            "name": "SET_ENS_NAME_FOR",
+            "nameLocation": "108:16:2",
+            "scope": 392,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 389,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "84:7:2",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": {
+              "hexValue": "3139",
+              "id": 390,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "127:2:2",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_19_by_1",
+                "typeString": "int_const 19"
+              },
+              "value": "19"
+            },
+            "visibility": "public"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "JBOperations2",
+        "contractDependencies": [],
+        "contractKind": "library",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          392
+        ],
+        "name": "JBOperations2",
+        "nameLocation": "66:13:2",
+        "scope": 393,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 2
+}

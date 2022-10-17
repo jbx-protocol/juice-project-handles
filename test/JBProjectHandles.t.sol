@@ -3,6 +3,7 @@ pragma solidity ^0.8.6;
 
 import 'forge-std/Test.sol';
 
+import '@ensdomains/ens-contracts/contracts/registry/ENS.sol'; // This is an interface...
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
 import '@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol';
 import '@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol';
@@ -10,6 +11,8 @@ import '@openzeppelin/contracts/utils/Strings.sol';
 
 import '@contracts/JBProjectHandles.sol';
 import '@contracts/libraries/JBOperations2.sol';
+
+ENS constant ensRegistry = ENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
 
 contract ContractTest is Test {
   // For testing the event emitted
@@ -29,10 +32,13 @@ contract ContractTest is Test {
 
   function setUp() public {
     vm.etch(address(ensTextResolver), '0x69');
+    vm.etch(address(ensRegistry), '0x69');
     vm.label(address(ensTextResolver), 'ensTextResolver');
+    vm.label(address(ensRegistry), 'ensRegistry');
+
     jbOperatorStore = new JBOperatorStore();
     jbProjects = new JBProjects(jbOperatorStore);
-    projectHandle = new JBProjectHandles(jbProjects, jbOperatorStore, ensTextResolver);
+    projectHandle = new JBProjectHandles(jbProjects, jbOperatorStore);
   }
 
   //*********************************************************************//
@@ -216,8 +222,32 @@ contract ContractTest is Test {
   // ---------------------------- handleOf(..) ------------------------- //
   //*********************************************************************//
 
-  function testHandleOf_returnsEmptyStringIfNoENSset(uint256 projectId) public {
+  function testHandleOf_returnsEmptyStringIfNoHandleSet(uint256 projectId) public {
     // No ENS set -> empty
+    assertEq(projectHandle.handleOf(projectId), '');
+  }
+
+  function testHandleOf_returnsEmptyStringIfENSIsNotRegistered(
+    uint256 projectId,
+    uint256 _reverseId,
+    string calldata _name,
+    string calldata _subdomain,
+    string calldata _subsubdomain
+  ) public {
+    vm.assume(projectId != _reverseId);
+
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](3);
+    _nameParts[0] = _subsubdomain;
+    _nameParts[1] = _subdomain;
+    _nameParts[2] = _name;
+
+    vm.mockCall(
+      address(ensRegistry),
+      abi.encodeWithSelector(ENS.resolver.selector, _namehash(_nameParts)),
+      abi.encode(address(0))
+    );
+
     assertEq(projectHandle.handleOf(projectId), '');
   }
 
@@ -238,6 +268,12 @@ contract ContractTest is Test {
     _nameParts[0] = _subsubdomain;
     _nameParts[1] = _subdomain;
     _nameParts[2] = _name;
+
+    vm.mockCall(
+      address(ensRegistry),
+      abi.encodeWithSelector(ENS.resolver.selector, _namehash(_nameParts)),
+      abi.encode(address(ensTextResolver))
+    );
 
     vm.mockCall(
       address(ensTextResolver),
@@ -272,6 +308,12 @@ contract ContractTest is Test {
 
     vm.prank(projectOwner);
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
+
+    vm.mockCall(
+      address(ensRegistry),
+      abi.encodeWithSelector(ENS.resolver.selector, _namehash(_nameParts)),
+      abi.encode(address(ensTextResolver))
+    );
 
     vm.mockCall(
       address(ensTextResolver),

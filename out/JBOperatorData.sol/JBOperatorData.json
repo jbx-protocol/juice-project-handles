@@ -1,0 +1,140 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "node_modules/@jbx-protocol/juice-contracts-v3/contracts/structs/JBOperatorData.sol",
+    "id": 24583,
+    "exportedSymbols": {
+      "JBOperatorData": [
+        24582
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:429:20",
+    "nodes": [
+      {
+        "id": 24574,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:20",
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 24582,
+        "nodeType": "StructDefinition",
+        "src": "366:94:20",
+        "canonicalName": "JBOperatorData",
+        "members": [
+          {
+            "constant": false,
+            "id": 24576,
+            "mutability": "mutable",
+            "name": "operator",
+            "nameLocation": "400:8:20",
+            "nodeType": "VariableDeclaration",
+            "scope": 24582,
+            "src": "392:16:20",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 24575,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "392:7:20",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 24578,
+            "mutability": "mutable",
+            "name": "domain",
+            "nameLocation": "420:6:20",
+            "nodeType": "VariableDeclaration",
+            "scope": 24582,
+            "src": "412:14:20",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 24577,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "412:7:20",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 24581,
+            "mutability": "mutable",
+            "name": "permissionIndexes",
+            "nameLocation": "440:17:20",
+            "nodeType": "VariableDeclaration",
+            "scope": 24582,
+            "src": "430:27:20",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+              "typeString": "uint256[]"
+            },
+            "typeName": {
+              "baseType": {
+                "id": 24579,
+                "name": "uint256",
+                "nodeType": "ElementaryTypeName",
+                "src": "430:7:20",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                }
+              },
+              "id": 24580,
+              "nodeType": "ArrayTypeName",
+              "src": "430:9:20",
+              "typeDescriptions": {
+                "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                "typeString": "uint256[]"
+              }
+            },
+            "visibility": "internal"
+          }
+        ],
+        "name": "JBOperatorData",
+        "nameLocation": "373:14:20",
+        "scope": 24583,
+        "visibility": "public"
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 20
+}
