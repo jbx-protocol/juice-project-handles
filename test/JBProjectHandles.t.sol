@@ -37,7 +37,7 @@ contract ContractTest is Test {
     vm.etch(address(oldHandle), '0x69');
     vm.label(address(ensTextResolver), 'ensTextResolver');
     vm.label(address(ensRegistry), 'ensRegistry');
-    vm.label(address(oldHandle), 'ensRegistry');
+    vm.label(address(oldHandle), 'oldHandle');
 
     jbOperatorStore = new JBOperatorStore();
     jbProjects = new JBProjects(jbOperatorStore);
@@ -226,18 +226,48 @@ contract ContractTest is Test {
   //*********************************************************************//
 
   function testHandleOf_returnsEmptyStringIfNoHandleSet(uint256 projectId) public {
-    // No ENS set, even in previous JBProjectHandle -> return empty
-    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(''));
+    // No handle set on the previous JBProjectHandle version neither
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.ensNamePartsOf, (projectId)), abi.encode(new string[](0)));
+
     assertEq(projectHandle.handleOf(projectId), '');
   }
 
-  function testHandleOf_returnsPreviousHandleIfRegisteredONLYOnPreviousVersion(uint256 projectId, string memory handle) public {
+  function testHandleOf_returnsPreviousHandleIfRegisteredONLYOnPreviousVersion(string calldata _name,
+    string calldata _subdomain,
+    string calldata _subsubdomain) public {
+    vm.assume(
+      bytes(_name).length > 0 && bytes(_subdomain).length > 0 && bytes(_subsubdomain).length > 0
+    );
+
+    uint256 projectId = 69420;
+
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](3);
+    _nameParts[0] = _subsubdomain;
+    _nameParts[1] = _subdomain;
+    _nameParts[2] = _name;
+
+    string memory KEY = projectHandle.TEXT_KEY();
+
+    vm.mockCall(
+      address(ensRegistry),
+      abi.encodeWithSelector(ENS.resolver.selector, _namehash(_nameParts)),
+      abi.encode(address(ensTextResolver))
+    );
+
+    vm.mockCall(
+      address(ensTextResolver),
+      abi.encodeWithSelector(ITextResolver.text.selector, _namehash(_nameParts), KEY),
+      abi.encode(Strings.toString(projectId))
+    );
+
     // ENS set in previous JBProjectHandle, not in the new one -> return it
-    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(handle));
-    assertEq(projectHandle.handleOf(projectId), handle);
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.ensNamePartsOf, (projectId)), abi.encode(_nameParts));
+
+    assertEq(projectHandle.handleOf(projectId), string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain)));
   }
 
-  function testHandleOf_returnsNewestHandleIfRegisteredOnBothOldAndNewVersion(
+  function testHandleOf_returnsHandleFromNewestContractIfRegisteredOnBothOldAndNew(
     string calldata _name,
     string calldata _subdomain,
     string calldata _subsubdomain
@@ -245,7 +275,6 @@ contract ContractTest is Test {
     vm.assume(
       bytes(_name).length > 0 && bytes(_subdomain).length > 0 && bytes(_subsubdomain).length > 0
     );
-
 
     uint256 _projectId = jbProjects.createFor(
       projectOwner,
@@ -259,6 +288,12 @@ contract ContractTest is Test {
     _nameParts[0] = _subsubdomain;
     _nameParts[1] = _subdomain;
     _nameParts[2] = _name;
+
+    // The name parts stored in the old contract
+    string[] memory _oldNamePart = new string[](3);
+    _oldNamePart[0] = 'it hurts';
+    _oldNamePart[1] = 'so deprecated that';
+    _oldNamePart[2] = 'I am';
 
     vm.prank(projectOwner);
     projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
@@ -276,8 +311,8 @@ contract ContractTest is Test {
     );
 
     // Mock the registration on the previous version
-    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (_projectId)), abi.encode('I am so deprecated that it hurts'));
-
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.ensNamePartsOf, (_projectId)), abi.encode(_oldNamePart));
+    
     // Returns the handle from the latest version
     assertEq(
       projectHandle.handleOf(_projectId),
@@ -295,7 +330,7 @@ contract ContractTest is Test {
     vm.assume(projectId != _reverseId);
 
     // No handle set on the previous JBProjectHandle version
-    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(''));
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.ensNamePartsOf, (projectId)), abi.encode(new string[](0)));
 
     // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
     string[] memory _nameParts = new string[](3);
@@ -322,7 +357,7 @@ contract ContractTest is Test {
     vm.assume(projectId != _reverseId);
 
     // No handle set on the previous JBProjectHandle version
-    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(''));
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.ensNamePartsOf, (projectId)), abi.encode(new string[](0)));
 
     string memory reverseId = Strings.toString(_reverseId);
     string memory KEY = projectHandle.TEXT_KEY();

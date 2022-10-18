@@ -108,13 +108,10 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Is the ENS not set in this contract?
     if (_ensNameParts.length == 0) {
           // Retrieve a handle potentially stored in the previous JbProjectHandle contract
-          string memory _oldHandle = oldJbProjectHandles.handleOf(_projectId);
+          _ensNameParts = oldJbProjectHandles.ensNamePartsOf(_projectId);
 
-          // If so, return it
-          if(bytes(_oldHandle).length != 0) return _oldHandle;
-
-      // Return an empty string if no ENS set in both versions    
-      return '';
+          // Return an empty string if no ENS set in both versions    
+          if(_ensNameParts.length == 0) return '';
     }
 
     // Compute the hash of the handle
