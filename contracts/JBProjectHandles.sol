@@ -71,6 +71,12 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice
+    The previous JBProjectHandles version, to not loose previously set handles
+  */
+  IJBProjectHandles public immutable oldJbProjectHandles;
+
+  /** 
+    @notice
     The ENS registry contract address.
 
     @dev
@@ -88,6 +94,8 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     @dev 
     Requires a TXT record for the `TEXT_KEY` that matches the `_projectId`.
+    As some handles were set in the previous version, try to retrieve it too
+    (this version takes precedence on the previous version)
 
     @param _projectId The ID of the project to get the handle of.
 
@@ -97,8 +105,17 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Get a reference to the project's ENS name parts.
     string[] memory _ensNameParts = _ensNamePartsOf[_projectId];
 
-    // Return empty string if ENS isn't set.
-    if (_ensNameParts.length == 0) return '';
+    // Is the ENS not set in this contract?
+    if (_ensNameParts.length == 0) {
+          // Retrieve a handle potentially stored in the previous JbProjectHandle contract
+          string memory _oldHandle = oldJbProjectHandles.handleOf(_projectId);
+
+          // If so, return it
+          if(bytes(_oldHandle).length != 0) return _oldHandle;
+
+      // Return an empty string if no ENS set in both versions    
+      return '';
+    }
 
     // Compute the hash of the handle
     bytes32 _hashedName = _namehash(_ensNameParts);
@@ -142,9 +159,11 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   */
   constructor(
     IJBProjects _projects,
-    IJBOperatorStore _operatorStore
+    IJBOperatorStore _operatorStore,
+    IJBProjectHandles _oldJbProjectHandles
   ) JBOperatable(_operatorStore) {
     projects = _projects;
+    oldJbProjectHandles = _oldJbProjectHandles;
   }
 
   //*********************************************************************//

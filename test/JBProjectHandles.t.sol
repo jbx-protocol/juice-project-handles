@@ -13,6 +13,7 @@ import '@contracts/JBProjectHandles.sol';
 import '@contracts/libraries/JBOperations2.sol';
 
 ENS constant ensRegistry = ENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
+IJBProjectHandles constant oldHandle = IJBProjectHandles(0x41126eC99F8A989fEB503ac7bB4c5e5D40E06FA4);
 
 contract ContractTest is Test {
   // For testing the event emitted
@@ -33,12 +34,14 @@ contract ContractTest is Test {
   function setUp() public {
     vm.etch(address(ensTextResolver), '0x69');
     vm.etch(address(ensRegistry), '0x69');
+    vm.etch(address(oldHandle), '0x69');
     vm.label(address(ensTextResolver), 'ensTextResolver');
     vm.label(address(ensRegistry), 'ensRegistry');
+    vm.label(address(oldHandle), 'ensRegistry');
 
     jbOperatorStore = new JBOperatorStore();
     jbProjects = new JBProjects(jbOperatorStore);
-    projectHandle = new JBProjectHandles(jbProjects, jbOperatorStore);
+    projectHandle = new JBProjectHandles(jbProjects, jbOperatorStore, oldHandle);
   }
 
   //*********************************************************************//
@@ -223,8 +226,63 @@ contract ContractTest is Test {
   //*********************************************************************//
 
   function testHandleOf_returnsEmptyStringIfNoHandleSet(uint256 projectId) public {
-    // No ENS set -> empty
+    // No ENS set, even in previous JBProjectHandle -> return empty
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(''));
     assertEq(projectHandle.handleOf(projectId), '');
+  }
+
+  function testHandleOf_returnsPreviousHandleIfRegisteredONLYOnPreviousVersion(uint256 projectId, string memory handle) public {
+    // ENS set in previous JBProjectHandle, not in the new one -> return it
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(handle));
+    assertEq(projectHandle.handleOf(projectId), handle);
+  }
+
+  function testHandleOf_returnsNewestHandleIfRegisteredOnBothOldAndNewVersion(
+    string calldata _name,
+    string calldata _subdomain,
+    string calldata _subsubdomain
+  ) public {
+    vm.assume(
+      bytes(_name).length > 0 && bytes(_subdomain).length > 0 && bytes(_subsubdomain).length > 0
+    );
+
+
+    uint256 _projectId = jbProjects.createFor(
+      projectOwner,
+      JBProjectMetadata({content: 'content', domain: 1})
+    );
+
+    string memory KEY = projectHandle.TEXT_KEY();
+
+    // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
+    string[] memory _nameParts = new string[](3);
+    _nameParts[0] = _subsubdomain;
+    _nameParts[1] = _subdomain;
+    _nameParts[2] = _name;
+
+    vm.prank(projectOwner);
+    projectHandle.setEnsNamePartsFor(_projectId, _nameParts);
+
+    vm.mockCall(
+      address(ensRegistry),
+      abi.encodeWithSelector(ENS.resolver.selector, _namehash(_nameParts)),
+      abi.encode(address(ensTextResolver))
+    );
+
+    vm.mockCall(
+      address(ensTextResolver),
+      abi.encodeWithSelector(ITextResolver.text.selector, _namehash(_nameParts), KEY),
+      abi.encode(Strings.toString(_projectId))
+    );
+
+    // Mock the registration on the previous version
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (_projectId)), abi.encode('I am so deprecated that it hurts'));
+
+    // Returns the handle from the latest version
+    assertEq(
+      projectHandle.handleOf(_projectId),
+      string(abi.encodePacked(_name, '.', _subdomain, '.', _subsubdomain))
+    );
   }
 
   function testHandleOf_returnsEmptyStringIfENSIsNotRegistered(
