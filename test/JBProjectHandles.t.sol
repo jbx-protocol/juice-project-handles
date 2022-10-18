@@ -294,6 +294,9 @@ contract ContractTest is Test {
   ) public {
     vm.assume(projectId != _reverseId);
 
+    // No handle set on the previous JBProjectHandle version
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(''));
+
     // name.subdomain.subsubdomain.eth is stored as ['subsubdomain', 'subdomain', 'domain']
     string[] memory _nameParts = new string[](3);
     _nameParts[0] = _subsubdomain;
@@ -317,6 +320,9 @@ contract ContractTest is Test {
     string calldata _subsubdomain
   ) public {
     vm.assume(projectId != _reverseId);
+
+    // No handle set on the previous JBProjectHandle version
+    vm.mockCall(address(oldHandle), abi.encodeCall(IJBProjectHandles.handleOf, (projectId)), abi.encode(''));
 
     string memory reverseId = Strings.toString(_reverseId);
     string memory KEY = projectHandle.TEXT_KEY();
