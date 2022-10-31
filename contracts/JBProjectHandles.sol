@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import '@ensdomains/ens-contracts/contracts/registry/ENS.sol'; // This is an interface...
 import '@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol';
 import '@jbx-protocol/juice-contracts-v3/contracts/abstract/JBOperatable.sol';
 import '@openzeppelin/contracts/interfaces/IERC721.sol';
@@ -70,9 +71,18 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
   /** 
     @notice
-    The ENS text resolver contract address.
+    The previous JBProjectHandles version, to not loose previously set handles
   */
-  ITextResolver public immutable override textResolver;
+  IJBProjectHandles public immutable oldJbProjectHandles;
+
+  /** 
+    @notice
+    The ENS registry contract address.
+
+    @dev
+    Same on every network
+  */
+  ENS public constant ensRegistry = ENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
 
   //*********************************************************************//
   // ------------------------- external views -------------------------- //
@@ -84,6 +94,8 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
 
     @dev 
     Requires a TXT record for the `TEXT_KEY` that matches the `_projectId`.
+    As some handles were set in the previous version, try to retrieve it too
+    (this version takes precedence on the previous version)
 
     @param _projectId The ID of the project to get the handle of.
 
@@ -93,11 +105,26 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
     // Get a reference to the project's ENS name parts.
     string[] memory _ensNameParts = _ensNamePartsOf[_projectId];
 
-    // Return empty string if ENS isn't set.
-    if (_ensNameParts.length == 0) return '';
+    // Is the ENS not set in this contract?
+    if (_ensNameParts.length == 0) {
+          // Retrieve a handle potentially stored in the previous JbProjectHandle contract
+          _ensNameParts = oldJbProjectHandles.ensNamePartsOf(_projectId);
+
+          // Return an empty string if no ENS set in both versions    
+          if(_ensNameParts.length == 0) return '';
+    }
+
+    // Compute the hash of the handle
+    bytes32 _hashedName = _namehash(_ensNameParts);
+
+    // Get the resolver for this handle, returns address(0) if non-existing
+    address textResolver = ensRegistry.resolver(_hashedName);
+
+    // If the handle is not a registered ENS, return empty string
+    if(textResolver == address(0)) return '';
 
     // Find the projectId that the text record of the ENS name is mapped to.
-    string memory textRecordProjectId = textResolver.text(_namehash(_ensNameParts), TEXT_KEY);
+    string memory textRecordProjectId = ITextResolver(textResolver).text(_hashedName, TEXT_KEY);
 
     // Return empty string if text record from ENS name doesn't match projectId.
     if (keccak256(bytes(textRecordProjectId)) != keccak256(bytes(Strings.toString(_projectId))))
@@ -126,15 +153,14 @@ contract JBProjectHandles is IJBProjectHandles, JBOperatable {
   /** 
     @param _projects A contract which mints ERC-721's that represent project ownership and transfers.
     @param _operatorStore A contract storing operator assignments.
-    @param _textResolver The ENS text resolver contract address.
   */
   constructor(
     IJBProjects _projects,
     IJBOperatorStore _operatorStore,
-    ITextResolver _textResolver
+    IJBProjectHandles _oldJbProjectHandles
   ) JBOperatable(_operatorStore) {
     projects = _projects;
-    textResolver = _textResolver;
+    oldJbProjectHandles = _oldJbProjectHandles;
   }
 
   //*********************************************************************//
