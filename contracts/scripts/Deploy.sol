@@ -9,7 +9,7 @@ import '@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol';
 import '../JBProjectHandles.sol';
 
 contract DeploySepolia is Test {
-  IJBOperatorStore _operatorStore = IJBOperatorStore(0x8f63c744c0280ef4b32af1f821c65e0fd4150ab3);
+  IJBOperatorStore _operatorStore = IJBOperatorStore(0x8f63C744C0280Ef4b32AF1F821c65E0fd4150ab3);
   IJBProjects _projects = IJBProjects(0x43CB8FCe4F0d61579044342A5d5A027aB7aE4D63);
   IJBProjectHandles _oldHandle = IJBProjectHandles(0x0000000000000000000000000000000000000000);
 
