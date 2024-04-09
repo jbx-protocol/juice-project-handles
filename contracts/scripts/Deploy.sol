@@ -15,7 +15,6 @@ contract DeploySepolia is Test {
     // Have to use its own address as the `_oldHandle`.
     // TODO: UPDATE THIS EACH TIME YOU DEPLOY.
     address willBeDeployedAt = _addressFrom(0xfAb4c9E48EB050E8f51555Ef949a7ef1b8fb263B, 0);
-    // console.log("Expected address: ", willBeDeployedAt);
 
     IJBProjectHandles _oldHandle = IJBProjectHandles(willBeDeployedAt);
 
