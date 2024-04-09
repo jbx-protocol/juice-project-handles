@@ -8,6 +8,20 @@ import '@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol';
 
 import '../JBProjectHandles.sol';
 
+contract DeploySepolia is Test {
+  IJBOperatorStore _operatorStore = IJBOperatorStore(0x8f63c744c0280ef4b32af1f821c65e0fd4150ab3);
+  IJBProjects _projects = IJBProjects(0x43CB8FCe4F0d61579044342A5d5A027aB7aE4D63);
+  IJBProjectHandles _oldHandle = IJBProjectHandles(0x0000000000000000000000000000000000000000);
+
+  JBProjectHandles jbProjectHandles;
+
+  function run() external {
+    vm.startBroadcast();
+
+    jbProjectHandles = new JBProjectHandles(_projects, _operatorStore, _oldHandle);
+  }
+}
+
 contract DeployGoerli is Test {
   IJBOperatorStore _operatorStore = IJBOperatorStore(0x99dB6b517683237dE9C494bbd17861f3608F3585);
   IJBProjects _projects = IJBProjects(0x21263a042aFE4bAE34F08Bb318056C181bD96D3b);

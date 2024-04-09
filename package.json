@@ -21,6 +21,7 @@
   "scripts": {
     "pretty": "prettier --write \"./**/*.{js,jsx,json,sol}\"",
     "deploy-goerli": "source .env && forge script DeployGoerli --rpc-url $GOERLI_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS",
+    "deploy-sepolia": "source .env && forge script DeploySepolia --rpc-url $SEPOLIA_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS",
     "deploy-mainnet": "source .env && forge script DeployMainnet --rpc-url $MAINNET_RPC_PROVIDER_URL --broadcast --mnemonic-paths mnemonic.txt --verify --etherscan-api-key $ETHERSCAN_API_KEY --sender $SENDER_ADDRESS"
   },
   "dependencies": {
